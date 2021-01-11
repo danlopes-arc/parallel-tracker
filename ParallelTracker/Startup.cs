@@ -50,6 +50,13 @@ namespace ParallelTracker
                     var configSection = Configuration.GetSection("Google");
                     options.ClientId = configSection["ClientId"];
                     options.ClientSecret = configSection["ClientSecret"];
+                })
+                .AddGitHub(options =>
+                {
+                    var configSection = Configuration.GetSection("GitHub");
+                    options.ClientId = configSection["ClientId"];
+                    options.ClientSecret = configSection["ClientSecret"];
+                    options.Scope.Add("user:email");
                 });
         }
 
