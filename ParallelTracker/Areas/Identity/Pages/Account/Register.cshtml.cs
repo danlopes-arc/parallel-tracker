@@ -52,8 +52,8 @@ namespace ParallelTracker.Areas.Identity.Pages.Account
             public string Email { get; set; }
 
             [Required]
-            [StringLength(15, MinimumLength = 3, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.")]
-            public string Username { get; set; }
+            [StringLength(15)]
+            public string Name { get; set; }
 
             [Required]
             [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
@@ -79,7 +79,11 @@ namespace ParallelTracker.Areas.Identity.Pages.Account
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
             if (ModelState.IsValid)
             {
-                var user = new User { UserName = Input.Username, Email = Input.Email };
+                var user = new User {
+                    UserName = Input.Email,
+                    Email = Input.Email,
+                    Name = Input.Name
+                };
                 var result = await _userManager.CreateAsync(user, Input.Password);
                 if (result.Succeeded)
                 {
