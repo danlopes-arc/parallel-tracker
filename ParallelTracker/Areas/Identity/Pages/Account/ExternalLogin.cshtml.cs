@@ -43,16 +43,13 @@ namespace ParallelTracker.Areas.Identity.Pages.Account
         public string ProviderDisplayName { get; set; }
 
         public string ReturnUrl { get; set; }
+        public string Email { get; set; }
 
         [TempData]
         public string ErrorMessage { get; set; }
 
         public class InputModel
         {
-            [Required]
-            [EmailAddress]
-            public string Email { get; set; }
-
             [Required]
             public string Name { get; set; }
         }
@@ -76,7 +73,7 @@ namespace ParallelTracker.Areas.Identity.Pages.Account
             if (remoteError != null)
             {
                 ErrorMessage = $"Error from external provider: {remoteError}";
-                return RedirectToPage("./Login", new {ReturnUrl = returnUrl });
+                return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
             }
             var info = await _signInManager.GetExternalLoginInfoAsync();
             if (info == null)
@@ -86,7 +83,7 @@ namespace ParallelTracker.Areas.Identity.Pages.Account
             }
 
             // Sign in the user with this external login provider if the user already has a login.
-            var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: false, bypassTwoFactor : true);
+            var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: false, bypassTwoFactor: true);
             if (result.Succeeded)
             {
                 _logger.LogInformation("{Name} logged in with {LoginProvider} provider.", info.Principal.Identity.Name, info.LoginProvider);
@@ -101,21 +98,22 @@ namespace ParallelTracker.Areas.Identity.Pages.Account
                 // If the user does not have an account, then ask the user to create an account.
                 ReturnUrl = returnUrl;
                 ProviderDisplayName = info.ProviderDisplayName;
-                //if (info.Principal.HasClaim(c => c.Type == ClaimTypes.Email))
-                //{
-                    Input = new InputModel
-                    {
-                        Email = info.Principal.FindFirstValue(ClaimTypes.Email),
-                        Name = info.Principal.FindFirstValue(ClaimTypes.Name)
-                    };
-                //}
-                return Page();
+
+                Input = new InputModel
+                {
+                    //Email = info.Principal.FindFirstValue(ClaimTypes.Email),
+                    Name = info.Principal.FindFirstValue(ClaimTypes.Name)
+                };
+
+                TryValidateModel(Input);
+
+                return await TryRegisterAsync(info, returnUrl);
             }
         }
 
         public async Task<IActionResult> OnPostConfirmationAsync(string returnUrl = null)
         {
-            returnUrl = returnUrl ?? Url.Content("~/");
+            returnUrl ??= Url.Content("~/");
             // Get the information about the user from the external login provider
             var info = await _signInManager.GetExternalLoginInfoAsync();
             if (info == null)
@@ -124,39 +122,42 @@ namespace ParallelTracker.Areas.Identity.Pages.Account
                 return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
             }
 
+            return await TryRegisterAsync(info, returnUrl);
+        }
+
+        private async Task<IActionResult> TryRegisterAsync(ExternalLoginInfo info, string returnUrl)
+        {
+            Email = info.Principal.FindFirstValue(ClaimTypes.Email);
+
+            if (await _userManager.FindByEmailAsync(Email) != null)
+            {
+                ErrorMessage = $"The email {Email} is already registered. Please, login with your password, and then link it your {info.ProviderDisplayName} account.";
+                return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
+            }
+
             if (ModelState.IsValid)
             {
-                var user = new User 
+                var user = new User
                 {
-                    UserName = Input.Email,
-                    Email = Input.Email,
+                    UserName = Email,
+                    Email = Email,
                     Name = Input.Name
                 };
 
-                var result = await _userManager.CreateAsync(user);
-                if (result.Succeeded)
+                var identityResult = await _userManager.CreateAsync(user);
+                if (identityResult.Succeeded)
                 {
-                    result = await _userManager.AddLoginAsync(user, info);
-                    if (result.Succeeded)
+                    identityResult = await _userManager.AddLoginAsync(user, info);
+                    if (identityResult.Succeeded)
                     {
                         _logger.LogInformation("User created an account using {Name} provider.", info.LoginProvider);
 
-                        var userId = await _userManager.GetUserIdAsync(user);
-                        var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                        code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-                        var callbackUrl = Url.Page(
-                            "/Account/ConfirmEmail",
-                            pageHandler: null,
-                            values: new { area = "Identity", userId = userId, code = code },
-                            protocol: Request.Scheme);
-
-                        await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-                            $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                        await SendConfirmationEmailAsync(user, Email);
 
                         // If account confirmation is required, we need to show the link if we don't have a real email sender
                         if (_userManager.Options.SignIn.RequireConfirmedAccount)
                         {
-                            return RedirectToPage("./RegisterConfirmation", new { Email = Input.Email });
+                            return RedirectToPage("./RegisterConfirmation", new { Email = Email });
                         }
 
                         await _signInManager.SignInAsync(user, isPersistent: false, info.LoginProvider);
@@ -164,7 +165,7 @@ namespace ParallelTracker.Areas.Identity.Pages.Account
                         return LocalRedirect(returnUrl);
                     }
                 }
-                foreach (var error in result.Errors)
+                foreach (var error in identityResult.Errors)
                 {
                     ModelState.AddModelError(string.Empty, error.Description);
                 }
@@ -173,6 +174,21 @@ namespace ParallelTracker.Areas.Identity.Pages.Account
             ProviderDisplayName = info.ProviderDisplayName;
             ReturnUrl = returnUrl;
             return Page();
+        }
+
+        private async Task SendConfirmationEmailAsync(User user, string email)
+        {
+            var userId = await _userManager.GetUserIdAsync(user);
+            var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+            var callbackUrl = Url.Page(
+                "/Account/ConfirmEmail",
+                pageHandler: null,
+                values: new { area = "Identity", userId = userId, code = code },
+                protocol: Request.Scheme);
+
+            await _emailSender.SendEmailAsync(email, "Confirm your email",
+                $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
         }
     }
 }
