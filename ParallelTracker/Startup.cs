@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using ParallelTracker.Data;
+using ParallelTracker.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,13 +28,15 @@ namespace ParallelTracker
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(
+            services.AddDbContext<ApplicationContext>(options =>
+                options.UseNpgsql(
                     Configuration.GetConnectionString("ApplicationConnection")));
+
             services.AddDatabaseDeveloperPageExceptionFilter();
 
-            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-                .AddEntityFrameworkStores<ApplicationDbContext>();
+            services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfirmedAccount = false)
+                .AddEntityFrameworkStores<ApplicationContext>();
+
             services.AddControllersWithViews();
         }
 
