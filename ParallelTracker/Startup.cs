@@ -43,6 +43,14 @@ namespace ParallelTracker
                 .AddEntityFrameworkStores<ApplicationContext>();
 
             services.AddControllersWithViews();
+
+            services.AddAuthentication()
+                .AddGoogle(options =>
+                {
+                    var configSection = Configuration.GetSection("Google");
+                    options.ClientId = configSection["ClientId"];
+                    options.ClientSecret = configSection["ClientSecret"];
+                });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
