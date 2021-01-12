@@ -62,7 +62,7 @@ namespace ParallelTracker.Controllers
         }
 
         // GET: Repos/Create
-        public IActionResult Create(string repoName)
+        public IActionResult Create()
         {
             return View();
         }
@@ -72,7 +72,7 @@ namespace ParallelTracker.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind(nameof(ChooseRepoInput.Name))] ChooseRepoInput input)
+        public async Task<IActionResult> Create([Bind(nameof(ChooseRepoInput.FullName))] ChooseRepoInput input)
         {
             if (!ModelState.IsValid)
             {
@@ -81,16 +81,17 @@ namespace ParallelTracker.Controllers
 
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var checkRepo = await _context.Repos
-                .FirstOrDefaultAsync(r => r.FullName.ToLower() == input.Name.ToLower() && r.OwnerId == userId);
+                .FirstOrDefaultAsync(r => r.FullName.ToLower() == input.FullName.ToLower() && r.OwnerId == userId);
+
             if (checkRepo != null)
             {
-                ModelState.AddModelError(nameof(ChooseRepoInput.Name), "You already have this repo in your account");
+                ModelState.AddModelError(nameof(ChooseRepoInput.FullName), "You already have this repo in your account");
                 return View(input);
             }
 
             using var client = new HttpClient
             {
-                BaseAddress = new Uri($"https://api.github.com/repos/{input.Name}")
+                BaseAddress = new Uri($"https://api.github.com/repos/{input.FullName}")
             };
 
             client.DefaultRequestHeaders.Accept.Clear();
@@ -110,7 +111,7 @@ namespace ParallelTracker.Controllers
                 if (ex is HttpRequestException reqEx &&
                     reqEx.StatusCode.GetValueOrDefault() == HttpStatusCode.NotFound)
                 {
-                    ModelState.AddModelError(nameof(ChooseRepoInput.Name), "Couldn't find a repo with this name");
+                    ModelState.AddModelError(nameof(ChooseRepoInput.FullName), "Couldn't find a repo with this name");
                     return View(input);
                 }
 
@@ -223,8 +224,8 @@ namespace ParallelTracker.Controllers
         public class ChooseRepoInput
         {
             [Required]
-            [DisplayName("Repo Name")]
-            public string Name { get; set; }
+            [DisplayName("Repo Full Name")]
+            public string FullName { get; set; }
         }
     }
 }
