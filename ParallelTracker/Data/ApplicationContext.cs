@@ -20,5 +20,7 @@ namespace ParallelTracker.Data
         {
             base.OnModelCreating(builder);
         }
+
+        public DbSet<Repo> Repos { get; set; }
     }
 }
