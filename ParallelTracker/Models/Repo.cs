@@ -31,7 +31,7 @@ namespace ParallelTracker.Models
         public string AvatarUrl { get; set; }
         public string Description { get; set; }
         public DateTime CreatedAt { get; set; }
-        public DateTime ParalleledAt { get; set; }
+        public DateTime CopiedAt { get; set; }
         public string GitHubOwnerLogin { get; set; }
         public string GitHubOwnerUrl { get; set; }
         public string OwnerId { get; set; }

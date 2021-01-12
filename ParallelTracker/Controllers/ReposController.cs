@@ -121,7 +121,7 @@ namespace ParallelTracker.Controllers
 
             var repo = new Repo(repoDeserialized)
             {
-                ParalleledAt = DateTime.Now,
+                CopiedAt = DateTime.Now,
                 OwnerId = userId
             };
 
@@ -155,7 +155,7 @@ namespace ParallelTracker.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Url,Name,FullName,AvatarUrl,Description,CreatedAt,ParalleledAt,GitHubOwnerLogin,GitHubOwnerUrl,OwnerId")] Repo repo)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Url,Name,FullName,AvatarUrl,Description,CreatedAt,CopiedAt,GitHubOwnerLogin,GitHubOwnerUrl,OwnerId")] Repo repo)
         {
             if (id != repo.Id)
             {
