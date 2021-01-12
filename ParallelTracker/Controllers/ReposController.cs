@@ -53,6 +53,7 @@ namespace ParallelTracker.Controllers
             var repo = await _context.Repos
                 .Include(r => r.Owner)
                 .FirstOrDefaultAsync(r => r.Id == id);
+
             if (repo == null)
             {
                 return NotFound();
