@@ -1,78 +1,36 @@
-﻿@model ParallelTracker.Models.Repo
-
+﻿@model ParallelTracker.Controllers.ReposController.ChooseRepoInput
 @{
-    ViewData["Title"] = "Create";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+	ViewData["Title"] = "Choose a GitHub Repo to Copy";
+	Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Create</h1>
 
-<h4>Repo</h4>
-<hr />
+<h1>@ViewData["Title"]</h1>
+<p>Go to GitHub, choose a repo and enter its name below.</p>
+<div class="alert alert-info">
+	<h5 class="alert-heading">Don't enter the repo's url</h5>
+	<p class="">If the url is <strong>https://github.com/danlopes-arc/parallel-tracker</strong>, the repo's name is <strong>danlopes-arc/parallel-tracker</strong>.</p>
+</div>
 <div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Url" class="control-label"></label>
-                <input asp-for="Url" class="form-control" />
-                <span asp-validation-for="Url" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="FullName" class="control-label"></label>
-                <input asp-for="FullName" class="form-control" />
-                <span asp-validation-for="FullName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="AvatarUrl" class="control-label"></label>
-                <input asp-for="AvatarUrl" class="form-control" />
-                <span asp-validation-for="AvatarUrl" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" />
-                <span asp-validation-for="Description" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CreatedAt" class="control-label"></label>
-                <input asp-for="CreatedAt" class="form-control" />
-                <span asp-validation-for="CreatedAt" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ParalleledAt" class="control-label"></label>
-                <input asp-for="ParalleledAt" class="form-control" />
-                <span asp-validation-for="ParalleledAt" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="GitHubOwnerLogin" class="control-label"></label>
-                <input asp-for="GitHubOwnerLogin" class="form-control" />
-                <span asp-validation-for="GitHubOwnerLogin" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="GitHubOwnerUrl" class="control-label"></label>
-                <input asp-for="GitHubOwnerUrl" class="form-control" />
-                <span asp-validation-for="GitHubOwnerUrl" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="OwnerId" class="control-label"></label>
-                <select asp-for="OwnerId" class ="form-control" asp-items="ViewBag.OwnerId"></select>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
+	<div class="col-md">
+		<form asp-action="Create">
+			<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+			<div class="form-group">
+				<label asp-for="Name" class="control-label"></label>
+				<input asp-for="Name" class="form-control" />
+				<span asp-validation-for="Name" class="text-danger"></span>
+			</div>
+			<div class="form-group">
+				<input type="submit" value="Choose" class="btn btn-primary" />
+			</div>
+		</form>
+	</div>
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+	<a asp-action="Index">Back to List</a>
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+	@{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }

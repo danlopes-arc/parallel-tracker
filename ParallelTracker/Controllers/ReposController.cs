@@ -15,6 +15,8 @@ using Microsoft.EntityFrameworkCore;
 using ParallelTracker.Data;
 using ParallelTracker.Models;
 using System.Net.Http.Headers;
+using ParallelTracker.Tools;
+using System.Security.Claims;
 
 namespace ParallelTracker.Controllers
 {
@@ -59,17 +61,30 @@ namespace ParallelTracker.Controllers
             return View(repo);
         }
 
-        public IActionResult ChooseRepo()
+        // GET: Repos/Create
+        public IActionResult Create(string repoName)
         {
             return View();
         }
 
+        // POST: Repos/Create
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ChooseRepo([Bind(nameof(ChooseRepoInput.Name))] ChooseRepoInput input)
+        public async Task<IActionResult> Create([Bind(nameof(ChooseRepoInput.Name))] ChooseRepoInput input)
         {
             if (!ModelState.IsValid)
             {
+                return View(input);
+            }
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var checkRepo = await _context.Repos
+                .FirstOrDefaultAsync(r => r.FullName.ToLower() == input.Name.ToLower() && r.OwnerId == userId);
+            if (checkRepo != null)
+            {
+                ModelState.AddModelError(nameof(ChooseRepoInput.Name), "You already have this repo in your account");
                 return View(input);
             }
 
@@ -84,9 +99,11 @@ namespace ParallelTracker.Controllers
             client.DefaultRequestHeaders.UserAgent.Add(
                 new ProductInfoHeaderValue("PrarallelTracker", "1.0"));
 
+            Repo.RepoDeserialized repoDeserialized;
+
             try
             {
-                var repoDeserialized = await client.GetFromJsonAsync<Repo.RepoDeserialized>("");
+                repoDeserialized = await client.GetFromJsonAsync<Repo.RepoDeserialized>("");
             }
             catch (Exception ex)
             {
@@ -101,32 +118,18 @@ namespace ParallelTracker.Controllers
                 return View(input);
             }
 
-            return RedirectToAction(nameof(Create), new { repoName = input.Name });
-
-        }
-
-        // GET: Repos/Create
-        public IActionResult Create(string repoName)
-        {
-            ViewData["OwnerId"] = new SelectList(_context.Users, "Id", "Id");
-            return View();
-        }
-
-        // POST: Repos/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Url,Name,FullName,AvatarUrl,Description,CreatedAt,ParalleledAt,GitHubOwnerLogin,GitHubOwnerUrl,OwnerId")] Repo repo)
-        {
-            if (ModelState.IsValid)
+            var repo = new Repo(repoDeserialized)
             {
-                _context.Add(repo);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["OwnerId"] = new SelectList(_context.Users, "Id", "Id", repo.OwnerId);
-            return View(repo);
+                ParalleledAt = DateTime.Now,
+                OwnerId = userId
+            };
+
+            _context.Add(repo);
+            await _context.SaveChangesAsync();
+            TempData["Message"] = "Repo copied succesfully";
+            TempData["MessageType"] = AlertMessageType.Success;
+
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Repos/Edit/5
