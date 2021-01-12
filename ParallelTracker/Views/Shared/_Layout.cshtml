@@ -30,20 +30,15 @@
 		</nav>
 	</header>
 	<div class="container">
-		@if (TempData["Message"] != null && TempData["Message"] is AlertMessage message)
-		{
-			var typeText = message.Type switch
+		@{
+			var message = TempData["Message"]?.ToString();
+			var type = TempData["MessageType"]?.ToString() ?? "secondary";
+			if (message != null)
 			{
-				AlertMessageType.Success => "success",
-				AlertMessageType.Error => "danger",
-				AlertMessageType.Info => "info",
-				AlertMessageType.Warnig => "warning",
-				_ => "info",
-			};
-
-			<div class="alert alert-@typeText" role="alert">
-				@message.Text
-			</div>
+				<div class="alert alert-@type" role="alert">
+					@message
+				</div>
+			}
 		}
 
 		<main role="main" class="pb-3">
