@@ -38,7 +38,6 @@ namespace ParallelTracker.Models
 
         public User Owner { get; set; }
 
-
         public class RepoDeserialized
         {
             public string name { get; set; }
