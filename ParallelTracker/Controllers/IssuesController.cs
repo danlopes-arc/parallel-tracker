@@ -50,7 +50,7 @@ namespace ParallelTracker.Controllers
             if (repoId == null)
             {
                 TempData.AddAlertMessage(new AlertMessasge(AlertMessageType.Danger, "Please, select a repo first"));
-                return NotFound();
+                return RedirectToAction("Index", "Repos");
             }
 
             return View();
