@@ -24,9 +24,6 @@
 		<a class="nav-link @getActiveText(nameof(ReposController.Details))" asp-action="@nameof(ReposController.Details)" asp-route-id="@Model.Id">Details</a>
 	</li>
 	<li class="nav-item">
-		<a class="nav-link @getActiveText(nameof(ReposController.ViewIssues))" asp-action="@nameof(ReposController.ViewIssues)" asp-route-id="@Model.Id">Issues</a>
-	</li>
-	<li class="nav-item">
 		<a class="nav-link @getActiveText(nameof(ReposController.Edit))" asp-action="@nameof(ReposController.Edit)" asp-route-id="@Model.Id">Manage</a>
 	</li>
 </ul>

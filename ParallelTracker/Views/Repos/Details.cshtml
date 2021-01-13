@@ -2,13 +2,22 @@
 
 @{
 	ViewData["Title"] = $"{Model.FullName}";
-	//Layout = "~/Views/Shared/_Layout.cshtml";
 	Layout = "_RepoLayout.cshtml";
 }
 
+<h4>Issues</h4>
+<a asp-controller="Issues" asp-action="Create">New Issue</a>
+@foreach (var issue in Model.Issues)
+{
+	<div class="card mb-2">
+		<div class="card-body">
+			<div class="card-title d-flex flex-row">
+				<a asp-controller="Issues" asp-action="Details" asp-route-id="@issue.Id">@issue.Title</a>
+				<span>!@issue.Comments.Count()</span>
+			</div>
+			<span class="card-subtitle mb-1 text-muted">by <strong>@issue.Author.UserName</strong> on <strong>@issue.CreatedAt.ToString("d")</strong></span>
+		</div>
+	</div>
+}
 
-Content
-@*<div>
-		<a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
-		<a asp-action="Index">Back to List</a>
-	</div>*@
+@* TODO: Add Pagiantion *@

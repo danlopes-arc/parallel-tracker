@@ -28,7 +28,7 @@
 				<img src="@repo.AvatarUrl" alt="Repo avatar" height="25" />
 				<a asp-action="Details" asp-route-id="@repo.Id">@repo.FullName</a>
 			</h5>
-			<h6 class="card-subtitle mb-1 text-muted">Copied by @repo.Owner.Name</h6>
+			<h6 class="card-subtitle mb-1 text-muted">Copied by @repo.Owner.UserName</h6>
 			<p class="card-text">@repo.Description</p>
 		</div>
 	</div>
