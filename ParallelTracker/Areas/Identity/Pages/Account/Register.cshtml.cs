@@ -53,7 +53,7 @@ namespace ParallelTracker.Areas.Identity.Pages.Account
             public string Email { get; set; }
 
             [Required]
-            [StringLength(15, MinimumLength = 3, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.")]
+            [StringLength(Constants.UserNameMaxCharacters, MinimumLength = Constants.UserNameMinCharacters, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.")]
             [RegularExpression(Constants.AllowedUserNameCharactersPattern, ErrorMessage = "The {0} may only have letters, digits and the following symbols -_")]
             public string Username { get; set; }
 

@@ -9,5 +9,7 @@ namespace ParallelTracker.Tools
     {
         public const string AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_";
         public const string AllowedUserNameCharactersPattern = @"^[a-zA-Z0-9\-_]+$";
+        public const int UserNameMinCharacters = 3;
+        public const int UserNameMaxCharacters = 15;
     }
 }
