@@ -130,9 +130,9 @@ namespace ParallelTracker.Controllers
 
             _context.Add(repo);
             await _context.SaveChangesAsync();
-            TempData["Message"] = "Repo copied succesfully";
-            TempData["MessageType"] = AlertMessageType.Success;
 
+            TempData.AddAlertMessage(new AlertMessasge(AlertMessageType.Success, "Repo copied succesfully"));
+            
             return RedirectToAction(nameof(Index));
         }
 

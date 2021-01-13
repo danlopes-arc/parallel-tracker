@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ParallelTracker.Data;
 using ParallelTracker.Models;
+using ParallelTracker.Tools;
 
 namespace ParallelTracker.Controllers
 {
@@ -48,8 +49,7 @@ namespace ParallelTracker.Controllers
         {
             if (repoId == null)
             {
-                TempData["Message"] = "Please, select a repo first";
-                TempData["MessageType"] = "Please, select a repo first";
+                TempData.AddAlertMessage(new AlertMessasge(AlertMessageType.Danger, "Please, select a repo first"));
                 return NotFound();
             }
 
