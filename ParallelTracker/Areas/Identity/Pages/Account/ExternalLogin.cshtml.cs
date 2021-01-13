@@ -5,6 +5,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Encodings.Web;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -14,6 +15,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using ParallelTracker.Models;
+using ParallelTracker.Tools;
 
 namespace ParallelTracker.Areas.Identity.Pages.Account
 {
@@ -51,7 +53,9 @@ namespace ParallelTracker.Areas.Identity.Pages.Account
         public class InputModel
         {
             [Required]
-            public string Name { get; set; }
+            [StringLength(Constants.UserNameMaxCharacters, MinimumLength = Constants.UserNameMinCharacters, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.")]
+            [RegularExpression(Constants.AllowedUserNameCharactersPattern, ErrorMessage = "The {0} may only have letters, digits and the following symbols -_")]
+            public string Username { get; set; }
         }
 
         public IActionResult OnGetAsync()
@@ -99,16 +103,32 @@ namespace ParallelTracker.Areas.Identity.Pages.Account
                 ReturnUrl = returnUrl;
                 ProviderDisplayName = info.ProviderDisplayName;
 
+                string preUsername = info.LoginProvider switch {
+                    "GitHub" => info.Principal.FindFirstValue(ClaimTypes.Name),
+                    _ => info.Principal.FindFirstValue(ClaimTypes.Email)
+                };
+
                 Input = new InputModel
                 {
-                    //Email = info.Principal.FindFirstValue(ClaimTypes.Email),
-                    Name = info.Principal.FindFirstValue(ClaimTypes.Name)
+                    Username = GetNormalizedUsername(preUsername)
                 };
 
                 TryValidateModel(Input);
 
                 return await TryRegisterAsync(info, returnUrl);
             }
+        }
+
+        private static string GetNormalizedUsername(string email)
+        {
+            var atIndex = email.IndexOf('@');
+            var username = email;
+            if (atIndex >= 0)
+            {
+                username = email.Substring(0, atIndex);
+            }
+            return Regex.Replace(username, $@"[^{Constants.AllowedUserNameCharacters}]+", "-");
+
         }
 
         public async Task<IActionResult> OnPostConfirmationAsync(string returnUrl = null)
@@ -139,9 +159,8 @@ namespace ParallelTracker.Areas.Identity.Pages.Account
             {
                 var user = new User
                 {
-                    UserName = Email,
                     Email = Email,
-                    Name = Input.Name
+                    UserName = Input.Username
                 };
 
                 var identityResult = await _userManager.CreateAsync(user);
