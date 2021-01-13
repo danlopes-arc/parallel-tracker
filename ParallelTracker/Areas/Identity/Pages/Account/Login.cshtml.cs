@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using ParallelTracker.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace ParallelTracker.Areas.Identity.Pages.Account
 {
@@ -22,7 +23,7 @@ namespace ParallelTracker.Areas.Identity.Pages.Account
         private readonly SignInManager<User> _signInManager;
         private readonly ILogger<LoginModel> _logger;
 
-        public LoginModel(SignInManager<User> signInManager, 
+        public LoginModel(SignInManager<User> signInManager,
             ILogger<LoginModel> logger,
             UserManager<User> userManager)
         {
@@ -44,8 +45,8 @@ namespace ParallelTracker.Areas.Identity.Pages.Account
         public class InputModel
         {
             [Required]
-            [EmailAddress]
-            public string Email { get; set; }
+            [Display(Name = "Username or email")]
+            public string UsernameOrEmail { get; set; }
 
             [Required]
             [DataType(DataType.Password)]
@@ -77,12 +78,25 @@ namespace ParallelTracker.Areas.Identity.Pages.Account
             returnUrl ??= Url.Content("~/");
 
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
-        
+
             if (ModelState.IsValid)
             {
+                var user = await _userManager.FindByEmailAsync(Input.UsernameOrEmail);
+                user ??= await _userManager.FindByNameAsync(Input.UsernameOrEmail);
+                if (user == null)
+                {
+                    ModelState.AddModelError(nameof(Input.UsernameOrEmail), "Invalid username or email.");
+                    return Page();
+                }
+
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-                var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
+                var result = await _signInManager.PasswordSignInAsync(
+                    user.UserName,
+                    Input.Password,
+                    Input.RememberMe,
+                    lockoutOnFailure: false);
+
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");

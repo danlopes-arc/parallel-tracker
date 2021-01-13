@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using ParallelTracker.Models;
+using ParallelTracker.Tools;
 
 namespace ParallelTracker.Areas.Identity.Pages.Account
 {
@@ -52,8 +53,9 @@ namespace ParallelTracker.Areas.Identity.Pages.Account
             public string Email { get; set; }
 
             [Required]
-            [StringLength(15)]
-            public string Name { get; set; }
+            [StringLength(15, MinimumLength = 3, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.")]
+            [RegularExpression(Constants.AllowedUserNameCharactersPattern, ErrorMessage = "The {0} may only have letters, digits and the following symbols -_")]
+            public string Username { get; set; }
 
             [Required]
             [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
@@ -80,9 +82,8 @@ namespace ParallelTracker.Areas.Identity.Pages.Account
             if (ModelState.IsValid)
             {
                 var user = new User {
-                    UserName = Input.Email,
+                    UserName = Input.Username,
                     Email = Input.Email,
-                    Name = Input.Name
                 };
                 var result = await _userManager.CreateAsync(user, Input.Password);
                 if (result.Succeeded)
