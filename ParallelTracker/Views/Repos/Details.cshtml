@@ -2,89 +2,13 @@
 
 @{
 	ViewData["Title"] = $"{Model.FullName}";
-	Layout = "~/Views/Shared/_Layout.cshtml";
+	//Layout = "~/Views/Shared/_Layout.cshtml";
+	Layout = "_RepoLayout.cshtml";
 }
 
-<h3>
-	<img src="@Model.AvatarUrl" alt="Repo avatar" height="45" class="mr-2" />
-	<a href="@Model.GitHubOwnerUrl" target="_blank">@Model.GitHubOwnerLogin</a>/<a href="@Model.Url" target="_blank">@Model.Name</a>
-</h3>
 
-<p class="text-muted" style="font-size: small">
-	Copied by <strong>@Model.Owner.Name</strong> on <strong>@Model.CopiedAt.ToString("d")</strong><br />
-</p>
-<hr />
-<p>@Model.Description</p>
-<hr />
-
-
+Content
 @*<div>
-		<h4>Repo</h4>
-		<hr />
-		<dl class="row">
-			<dt class = "col-sm-2">
-				@Html.DisplayNameFor(model => model.Url)
-			</dt>
-			<dd class = "col-sm-10">
-				@Html.DisplayFor(model => model.Url)
-			</dd>
-			<dt class = "col-sm-2">
-				@Html.DisplayNameFor(model => model.Name)
-			</dt>
-			<dd class = "col-sm-10">
-				@Html.DisplayFor(model => model.Name)
-			</dd>
-			<dt class = "col-sm-2">
-				@Html.DisplayNameFor(model => model.FullName)
-			</dt>
-			<dd class = "col-sm-10">
-				@Html.DisplayFor(model => model.FullName)
-			</dd>
-			<dt class = "col-sm-2">
-				@Html.DisplayNameFor(model => model.AvatarUrl)
-			</dt>
-			<dd class = "col-sm-10">
-				@Html.DisplayFor(model => model.AvatarUrl)
-			</dd>
-			<dt class = "col-sm-2">
-				@Html.DisplayNameFor(model => model.Description)
-			</dt>
-			<dd class = "col-sm-10">
-				@Html.DisplayFor(model => model.Description)
-			</dd>
-			<dt class = "col-sm-2">
-				@Html.DisplayNameFor(model => model.CreatedAt)
-			</dt>
-			<dd class = "col-sm-10">
-				@Html.DisplayFor(model => model.CreatedAt)
-			</dd>
-			<dt class = "col-sm-2">
-				@Html.DisplayNameFor(model => model.CopiedAt)
-			</dt>
-			<dd class = "col-sm-10">
-				@Html.DisplayFor(model => model.CopiedAt)
-			</dd>
-			<dt class = "col-sm-2">
-				@Html.DisplayNameFor(model => model.GitHubOwnerLogin)
-			</dt>
-			<dd class = "col-sm-10">
-				@Html.DisplayFor(model => model.GitHubOwnerLogin)
-			</dd>
-			<dt class = "col-sm-2">
-				@Html.DisplayNameFor(model => model.GitHubOwnerUrl)
-			</dt>
-			<dd class = "col-sm-10">
-				@Html.DisplayFor(model => model.GitHubOwnerUrl)
-			</dd>
-			<dt class = "col-sm-2">
-				@Html.DisplayNameFor(model => model.Owner)
-			</dt>
-			<dd class = "col-sm-10">
-				@Html.DisplayFor(model => model.Owner.Id)
-			</dd>
-		</dl>
-	</div>
-	<div>
 		<a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
 		<a asp-action="Index">Back to List</a>
 	</div>*@

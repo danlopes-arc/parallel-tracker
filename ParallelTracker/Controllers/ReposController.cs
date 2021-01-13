@@ -41,6 +41,27 @@ namespace ParallelTracker.Controllers
             return View(repos);
         }
 
+        // GET: Repos/ViewIssues/5
+        [AllowAnonymous]
+        public async Task<IActionResult> ViewIssues(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var repo = await _context.Repos
+                .Include(r => r.Owner)
+                .FirstOrDefaultAsync(r => r.Id == id);
+
+            if (repo == null)
+            {
+                return NotFound();
+            }
+
+            return View(repo);
+        }
+
         // GET: Repos/Details/5
         [AllowAnonymous]
         public async Task<IActionResult> Details(int? id)

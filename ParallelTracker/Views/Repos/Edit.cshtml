@@ -1,14 +1,9 @@
 ﻿@model ParallelTracker.Models.Repo
 
 @{
-    ViewData["Title"] = "Edit";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+	ViewData["Title"] = $"{Model.FullName} Manage";
+	Layout = "_RepoLayout.cshtml";
 }
-
-<h1>Edit</h1>
-
-<h4>Repo</h4>
-<hr />
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Edit">
