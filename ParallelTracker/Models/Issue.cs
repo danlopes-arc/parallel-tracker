@@ -9,6 +9,7 @@ namespace ParallelTracker.Models
     {
         public int Id { get; set; }
         public int AuthorId { get; set; }
+        public int RepoId { get; set; }
         public string Title { get; set; }
         public string Text { get; set; }
         public DateTime CreatedAt { get; set; }
@@ -16,6 +17,7 @@ namespace ParallelTracker.Models
         public DateTime? ClosedAt { get; set; }
 
         public User Author { get; set; }
+        public Repo Repo { get; set; }
 
         public IEnumerable<Comment> Comments { get; set; }
 
