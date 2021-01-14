@@ -6,10 +6,11 @@
 	Layout = "~/Views/Shared/_RepoLayout.cshtml";
 }
 
-<h4>@ViewData["Title"]</h4>
-<hr />
-<div class="row">
-	<div class="col">
+<div class="card">
+	<div class="card-header">
+		@ViewData["Title"]
+	</div>
+	<div class="card-body">
 		<form asp-action="Create">
 			<div asp-validation-summary="ModelOnly" class="text-danger"></div>
 			<input type="hidden" asp-for="RepoId" />
