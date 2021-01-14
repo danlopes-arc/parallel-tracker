@@ -115,8 +115,6 @@ namespace ParallelTracker.Controllers
         }
 
         // POST: Issues/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Title,Text,IsClosed")] EditIssueInput input)
@@ -168,6 +166,96 @@ namespace ParallelTracker.Controllers
             return View(input);
         }
 
+        // GET: Issues/Close/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Close(int? id)
+        {
+            var issue = _currentResources.Issue;
+            if (issue == null)
+            {
+                return NotFound();
+            }
+
+            if (User.FindFirstValue(ClaimTypes.NameIdentifier) != issue.Repo.OwnerId)
+            {
+                TempData.AddAlertMessage(new AlertMessasge(AlertMessageType.Danger, "Only the repo owner can change its issues status"));
+                return RedirectToAction(nameof(Details));
+            }
+
+            if (issue.IsClosed)
+            {
+                TempData.AddAlertMessage(new AlertMessasge(AlertMessageType.Danger, "Issue is already closed"));
+                return RedirectToAction(nameof(Details));
+            }
+
+            issue.ClosedAt = DateTime.Now;
+
+            try
+            {
+                _context.Update(issue);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!IssueExists(issue.Id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            TempData.AddAlertMessage(new AlertMessasge(AlertMessageType.Success, "Issue was closed successfully"));
+            return RedirectToAction(nameof(Details), new { id = issue.Id });
+        }
+
+        // GET: Issues/Reopen/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Reopen(int? id)
+        {
+            var issue = _currentResources.Issue;
+            if (issue == null)
+            {
+                return NotFound();
+            }
+
+            if (User.FindFirstValue(ClaimTypes.NameIdentifier) != issue.Repo.OwnerId)
+            {
+                TempData.AddAlertMessage(new AlertMessasge(AlertMessageType.Danger, "Only the repo owner can change its issues status"));
+                return RedirectToAction(nameof(Details));
+            }
+
+            if (!issue.IsClosed)
+            {
+                TempData.AddAlertMessage(new AlertMessasge(AlertMessageType.Danger, "Issue is already open"));
+                return RedirectToAction(nameof(Details));
+            }
+
+            issue.ClosedAt = null;
+
+            try
+            {
+                _context.Update(issue);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!IssueExists(issue.Id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            TempData.AddAlertMessage(new AlertMessasge(AlertMessageType.Success, "Issue was reopened successfully"));
+            return RedirectToAction(nameof(Details), new { id = issue.Id });
+        }
+
         // GET: Issues/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
@@ -214,6 +302,7 @@ namespace ParallelTracker.Controllers
         [Required]
         public string Text { get; set; }
     }
+
     public class EditIssueInput
     {
         [Required]
@@ -223,7 +312,7 @@ namespace ParallelTracker.Controllers
         [Required]
         public string Text { get; set; }
         [Required]
-        [Display(Name ="Closed")]
+        [Display(Name = "Closed")]
         public bool IsClosed { get; set; }
     }
 }
