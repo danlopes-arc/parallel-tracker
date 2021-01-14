@@ -25,9 +25,9 @@
 
 @foreach (var issue in Model.Issues)
 {
-	<div class="card mb-2">
+	<div class="card shadow-sm mb-2">
 		<div class="card-body p-3">
-			<h5 class="card-title d-flex flex-row my-0">
+			<h5 class="card-title d-flex flex-row my-0 mb-2">
 				@if (issue.IsClosed)
 				{
 					<text>&#10004;</text>
@@ -36,8 +36,8 @@
 				{
 					<text>&#9888;</text>
 				}
-				<a class="ml-1" asp-controller="Issues" asp-action="Details" asp-route-id="@issue.Id">@issue.Title</a>
-				<span class="badge badge-pills badge-light ml-auto p-2">&#128172; @issue.Comments.Count()</span>
+				<a class="ml-1 text-break" asp-controller="Issues" asp-action="Details" asp-route-id="@issue.Id">@issue.Title</a>
+				<span class="badge ml-auto">&#128172; @issue.Comments.Count()</span>
 			</h5>
 			<span class="card-subtitle mb-1 text-muted">by <strong>@issue.Author.UserName</strong> on <strong>@issue.CreatedAt.ToString("d")</strong></span>
 		</div>
