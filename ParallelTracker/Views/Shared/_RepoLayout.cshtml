@@ -17,10 +17,7 @@
 <p class="text-muted" style="font-size: small">
 	Copied by <strong>@repo.Owner.UserName</strong> on <strong>@repo.CopiedAt.ToString("d")</strong><br />
 </p>
-<div class="card mb-3">
-	<div class="card-body p-2 px-3">@repo.Description</div>
-</div>
-<ul class="nav nav-tabs mb-2">
+<ul class="nav nav-tabs mb-3">
 	<li class="nav-item">
 		<a class="nav-link @getActiveText(nameof(ReposController.Details))" asp-action="@nameof(ReposController.Details)" asp-route-id="@repo.Id">Details</a>
 	</li>

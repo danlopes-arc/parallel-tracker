@@ -5,6 +5,10 @@
 	Layout = "~/Views/Shared/_RepoLayout.cshtml";
 }
 
+<div class="card mb-3">
+	<div class="card-body p-2 px-3">@Model.Description</div>
+</div>
+<hr />
 <h4>Issues</h4>
 <a asp-controller="Issues" asp-action="Create" asp-route-repoId="@Model.Id">New Issue</a>
 @foreach (var issue in Model.Issues)
