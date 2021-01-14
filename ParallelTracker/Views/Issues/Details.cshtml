@@ -5,6 +5,7 @@
 	var issue = CurrentResources.Issue;
 	ViewData["Title"] = $"Issue #{issue.Id}";
 	Layout = "~/Views/Shared/_RepoLayout.cshtml";
+	var isIssueAuthor = User.FindFirstValue(ClaimTypes.NameIdentifier) == issue.AuthorId;
 }
 
 <div class="d-flex flex-row row">
@@ -24,7 +25,7 @@
 	<div class="ml-md-auto ml-3 mr-3">
 		<div class="d-flex flex-row">
 			<a class="btn btn-sm btn-primary" asp-controller="Comments" asp-action="Create" asp-route-issueId="@Model.Id">Comment</a>
-			@if (User.FindFirstValue(ClaimTypes.NameIdentifier) == issue.AuthorId)
+			@if (isIssueAuthor)
 			{
 				if (issue.IsClosed)
 				{
@@ -38,9 +39,6 @@
 						<button type="submit" class="btn btn-sm btn-primary ml-1">Close</button>
 					</form>
 				}
-			}
-			@if (User.FindFirstValue(ClaimTypes.NameIdentifier) == issue.AuthorId)
-			{
 				<a class="btn btn-sm btn-primary ml-1" asp-action="Edit" asp-route-id="@Model.Id">Edit</a>
 			}
 		</div>
@@ -57,8 +55,12 @@
 </p>
 
 <div class="card shadow-sm mb-3">
-	<div class="card-header text-muted py-1">
-		<strong>@issue.Author</strong> on @issue.CreatedAt.ToString("g")
+	<div class="card-header text-muted py-1 d-flex flex-row">
+		<span><strong>@issue.Author</strong> on @issue.CreatedAt.ToString("g")</span>
+		@if (isIssueAuthor)
+		{
+			<span class="ml-auto"><a asp-action="Edit" asp-route-id="@issue.Id">Edit</a></span>
+		}
 	</div>
 	<div class="card-body">
 		@if (string.IsNullOrEmpty(issue.Text))
@@ -82,8 +84,9 @@
 @foreach (var comment in issue.Comments)
 {
 	<div class="card shadow-sm mb-3">
-		<div class="card-header text-muted py-1">
-			<strong>@comment.Author</strong> on @comment.CreatedAt.ToString("g")
+		<div class="card-header text-muted py-1 d-flex flex-row">
+			<span><strong>@comment.Author</strong> on @comment.CreatedAt.ToString("g")</span>
+			<span class="ml-auto"><a asp-controller="Comments" asp-action="Edit" asp-route-id="@comment.Id">Edit</a></span>
 		</div>
 		<div class="card-body">
 			@if (string.IsNullOrEmpty(comment.Text))
@@ -92,7 +95,12 @@
 			}
 			else
 			{
-				<p class="card-text">@comment.Text</p>
+				<p class="card-text">
+					@foreach (var line in comment.Text.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None))
+					{
+						<text>@line</text><br />
+					}
+				</p>
 			}
 		</div>
 		@if (comment.IsEdited)
