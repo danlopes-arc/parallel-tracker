@@ -11,5 +11,6 @@ namespace ParallelTracker.Tools
     {
         public Repo Repo { get; set; }
         public Issue Issue { get; set; }
+        public Comment Comment { get; set; }
     }
 }
