@@ -1,12 +1,13 @@
 ﻿@using System.Security.Claims
 @model ParallelTracker.Controllers.CreateIssueInput
+@inject ParallelTracker.Tools.CurrentResources CurrentResources
 
 @{
-	ViewData["Title"] = "Create";
- Layout = "~/Views/Shared/_RepoLayout.cshtml";
+	ViewData["Title"] = "New Issue";
+	Layout = "~/Views/Shared/_RepoLayout.cshtml";
 }
 
-<h4>New Issue</h4>
+<h4>@ViewData["Title"]</h4>
 <hr />
 <div class="row">
 	<div class="col">
@@ -25,13 +26,10 @@
 			</div>
 			<div class="form-group">
 				<input type="submit" value="Open Issue" class="btn btn-primary" />
+				<a class="btn btn-outline-secondary ml-1" asp-controller="Repos" asp-action="Details" asp-route-id="@CurrentResources.Repo.Id">Cancel</a>
 			</div>
 		</form>
 	</div>
-</div>
-
-<div>
-	<a asp-controller="Repos" asp-action="Details" asp-route-id="@Model.RepoId">Back</a>
 </div>
 
 @section Scripts {
