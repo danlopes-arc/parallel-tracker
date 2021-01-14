@@ -9,8 +9,20 @@
 	<div class="card-body p-2 px-3">@Model.Description</div>
 </div>
 <hr />
-<h4>Issues</h4>
-<a asp-controller="Issues" asp-action="Create" asp-route-repoId="@Model.Id">New Issue</a>
+<h4 class="d-flex flex-row mb-3">
+	Issues
+	<a class="btn btn-sm btn-primary ml-auto" asp-controller="Issues" asp-action="Create" asp-route-repoId="@Model.Id">New Issue</a>
+</h4>
+
+@if (Model.Issues.Count() == 0)
+{
+	<div class="card">
+		<div class="card-body text-center">
+			The list is empty.
+		</div>
+	</div>
+}
+
 @foreach (var issue in Model.Issues)
 {
 	<div class="card mb-2">
