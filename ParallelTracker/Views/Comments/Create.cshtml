@@ -1,6 +1,5 @@
 ﻿@model ParallelTracker.Controllers.CreateCommentInput
 @inject ParallelTracker.Tools.CurrentResources CurrentResources
-
 @{
 	ViewData["Title"] = "Leave a comment";
 	Layout = "~/Views/Shared/_RepoLayout.cshtml";
@@ -19,9 +18,9 @@
 	}
 	<span class="ml-1">@issue.Title</span>
 	@*<span class="ml-auto">
-		<a class="btn btn-sm btn-primary" asp-controller="Comments" asp-action="Create" asp-route-issueId="@Model.Id">Comment</a>
-		<a class="btn btn-sm btn-primary ml-1" asp-action="Edit" asp-route-id="@Model.Id">Edit</a>
-	</span>*@
+			<a class="btn btn-sm btn-primary" asp-controller="Comments" asp-action="Create" asp-route-issueId="@Model.Id">Comment</a>
+			<a class="btn btn-sm btn-primary ml-1" asp-action="Edit" asp-route-id="@Model.Id">Edit</a>
+		</span>*@
 </h4>
 <p class="text-muted" style="font-size: small">
 	opened by <strong>@issue.Author.UserName</strong> on <strong>@issue.CreatedAt.ToString("d")</strong>
