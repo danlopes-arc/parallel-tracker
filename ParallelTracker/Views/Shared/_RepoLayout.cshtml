@@ -3,9 +3,22 @@
 @{
 	Layout = "~/Views/Shared/_Layout.cshtml";
 	var action = ViewContext.RouteData.Values["action"].ToString();
+	var controller = ViewContext.RouteData.Values["controller"].ToString();
 	var repo = CurrentResources.Repo;
+	var issue = CurrentResources.Issue;
 
-	string getActiveText(string checkAction) => checkAction == action ? "active" : "";
+	string currentTab = "";
+
+	if (issue != null || action == "Details")
+	{
+		currentTab = "Issues";
+	}
+	else if (action == "Edit")
+	{
+		currentTab = "Edit";
+	}
+
+	string getActiveText(string tabName) => tabName == currentTab ? "active" : "";
 
 }
 
@@ -19,10 +32,10 @@
 </p>
 <ul class="nav nav-tabs mb-3">
 	<li class="nav-item">
-		<a class="nav-link @getActiveText(nameof(ReposController.Details))" asp-action="@nameof(ReposController.Details)" asp-route-id="@repo.Id">Details</a>
+		<a class="nav-link @getActiveText("Issues")" asp-controller="@Text.GetControllerName(typeof(ReposController))" asp-action="@nameof(ReposController.Details)" asp-route-id="@repo.Id">Issues</a>
 	</li>
 	<li class="nav-item">
-		<a class="nav-link @getActiveText(nameof(ReposController.Edit))" asp-action="@nameof(ReposController.Edit)" asp-route-id="@repo.Id">Manage</a>
+		<a class="nav-link @getActiveText("Edit")" asp-controller="@Text.GetControllerName(typeof(ReposController))" asp-action="@nameof(ReposController.Edit)" asp-route-id="@repo.Id">Manage</a>
 	</li>
 </ul>
 @RenderBody()
