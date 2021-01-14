@@ -23,8 +23,12 @@ namespace ParallelTracker.Tools
             var controller = httpContext.Request.RouteValues["controller"]?.ToString();
             var id = httpContext.Request.RouteValues["id"]?.ToString();
             string repoId = httpContext.Request.Query["repoId"];
+            string issueId = httpContext.Request.Query["issueId"];
 
-            if (int.TryParse(id, out int intId) && controller == "Issues")
+            if (controller == "Repos") repoId = id;
+            if (controller == "Issues") issueId = id;
+
+            if (int.TryParse(issueId, out int issueIntId))
             {
                 resources.Issue = await dbContext.Issues
                     .Include(i => i.Author)
@@ -32,27 +36,21 @@ namespace ParallelTracker.Tools
                         .ThenInclude(r => r.Owner)
                     .Include(i => i.Repo)
                         .ThenInclude(r => r.Issues)
-                    .FirstOrDefaultAsync(i => i.Id == intId);
+                    .Include(i => i.Comments)
+                    .FirstOrDefaultAsync(i => i.Id == issueIntId);
 
                 if (resources.Issue != null)
                 {
                     resources.Repo = resources.Issue.Repo;
                 }
             }
-            else
-            {
-                if (controller == "Repos")
-                {
-                    repoId = id;
-                }
 
-                if (int.TryParse(repoId, out int intRepoId) && controller == "Repos" || controller == "Issues")
-                {
-                    resources.Repo = await dbContext.Repos
-                        .Include(r => r.Owner)
-                        .Include(r => r.Issues)
-                        .FirstOrDefaultAsync(r => r.Id == intRepoId);
-                }
+            if (resources.Issue == null && int.TryParse(repoId, out int intRepoId))
+            {
+                resources.Repo = await dbContext.Repos
+                    .Include(r => r.Owner)
+                    .Include(r => r.Issues)
+                    .FirstOrDefaultAsync(r => r.Id == intRepoId);
             }
 
             await _next(httpContext);
