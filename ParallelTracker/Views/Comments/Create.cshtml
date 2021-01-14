@@ -1,52 +1,58 @@
-﻿@model ParallelTracker.Models.Comment
+﻿@model ParallelTracker.Controllers.CreateCommentInput
+@inject ParallelTracker.Tools.CurrentResources CurrentResources
 
 @{
-    ViewData["Title"] = "Create";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+	ViewData["Title"] = "Leave a comment";
+	Layout = "~/Views/Shared/_RepoLayout.cshtml";
+	var issue = CurrentResources.Issue;
+	var repo = issue.Repo;
 }
 
-<h1>Create</h1>
+<h4 class="d-flex flex-row">
+	@if (issue.IsClosed)
+	{
+		<text>&#10004;</text>
+	}
+	else
+	{
+		<text>&#9888;</text>
+	}
+	<span class="ml-1">@issue.Title</span>
+	@*<span class="ml-auto">
+		<a class="btn btn-sm btn-primary" asp-controller="Comments" asp-action="Create" asp-route-issueId="@Model.Id">Comment</a>
+		<a class="btn btn-sm btn-primary ml-1" asp-action="Edit" asp-route-id="@Model.Id">Edit</a>
+	</span>*@
+</h4>
+<p class="text-muted" style="font-size: small">
+	opened by <strong>@issue.Author.UserName</strong> on <strong>@issue.CreatedAt.ToString("d")</strong>
+	@if (issue.IsClosed)
+	{
+		<br />
+		<text>closed on <strong>@issue.ClosedAt?.ToString("d")</strong></text>
+	}
+</p>
 
-<h4>Comment</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="AuthorId" class="control-label"></label>
-                <select asp-for="AuthorId" class ="form-control" asp-items="ViewBag.AuthorId"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="IssueId" class="control-label"></label>
-                <select asp-for="IssueId" class ="form-control" asp-items="ViewBag.IssueId"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="Text" class="control-label"></label>
-                <input asp-for="Text" class="form-control" />
-                <span asp-validation-for="Text" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CreatedAt" class="control-label"></label>
-                <input asp-for="CreatedAt" class="form-control" />
-                <span asp-validation-for="CreatedAt" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="EditedAt" class="control-label"></label>
-                <input asp-for="EditedAt" class="form-control" />
-                <span asp-validation-for="EditedAt" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
-</div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
+<div class="card">
+	<div class="card-header">
+		Leave a comment
+	</div>
+	<div class="card-body">
+		<form asp-action="Create">
+			<input type="hidden" asp-for="IssueId" />
+			<div class="form-group">
+				<label asp-for="Text" class="sr-only"></label>
+				<textarea asp-for="Text" class="form-control" rows="10"></textarea>
+				<span asp-validation-for="Text" class="text-danger"></span>
+			</div>
+			<div class="form-group">
+				<input type="submit" value="Comment" class="btn btn-primary" />
+				<a class="btn btn-outline-secondary ml-1" asp-controller="Issues" asp-action="Details" asp-route-id="@issue.Id">Cancel</a>
+			</div>
+		</form>
+	</div>
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+	@{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
+
