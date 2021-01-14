@@ -8,7 +8,7 @@ namespace ParallelTracker.Models
     public class Issue
     {
         public int Id { get; set; }
-        public int AuthorId { get; set; }
+        public string AuthorId { get; set; }
         public int RepoId { get; set; }
         public string Title { get; set; }
         public string Text { get; set; }
