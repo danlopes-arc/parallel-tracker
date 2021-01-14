@@ -1,55 +1,53 @@
 ﻿@model ParallelTracker.Models.Issue
+@inject ParallelTracker.Tools.CurrentResources CurrentResources
 
 @{
-    ViewData["Title"] = "Details";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+	var issue = CurrentResources.Issue;
+	ViewData["Title"] = $"Issue #{issue.Id}";
+	Layout = "~/Views/Shared/_RepoLayout.cshtml";
 }
 
-<h1>Details</h1>
+<h4 class="d-flex flex-row">
+	@if (issue.IsClosed)
+	{
+		<text>&#10004;</text>
+	}
+	else
+	{
+		<text>&#9888;</text>
+	}
+	<span class="ml-1">@issue.Title</span>
+	<a class="btn btn-sm btn-primary ml-auto" asp-action="Edit" asp-route-id="@Model.Id">Edit</a>
 
-<div>
-    <h4>Issue</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.AuthorId)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.AuthorId)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Title)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Title)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Text)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Text)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CreatedAt)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CreatedAt)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.EditedAt)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.EditedAt)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ClosedAt)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ClosedAt)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+</h4>
+<p class="text-muted" style="font-size: small">
+	opened by <strong>@issue.Author.UserName</strong> on <strong>@issue.CreatedAt.ToString("d")</strong>
+	@if (issue.IsClosed)
+	{
+		<br />
+		<text>closed on <strong>@issue.ClosedAt?.ToString("d")</strong></text>
+	}
+</p>
+<hr />
+
+<div class="card">
+	<div class="card-header text-muted py-1">
+		<strong>@issue.Author</strong> on @issue.CreatedAt.ToString("g")
+	</div>
+	<div class="card-body">
+		@if (string.IsNullOrEmpty(issue.Text))
+		{
+			<p class="card-text font-italic">No desciption provided</p>
+		}
+		else
+		{
+			<p class="card-text">@issue.Text</p>
+		}
+	</div>
+	@if (issue.IsEdited)
+	{
+		<div class="card-footer text-muted py-0">
+			<small>edited on @issue.CreatedAt.ToString("g")</small>
+		</div>
+	}
 </div>

@@ -35,15 +35,9 @@ namespace ParallelTracker.Controllers
 
         // GET: Issues/Details/5
         [AllowAnonymous]
-        public async Task<IActionResult> Details(int? id)
+        public IActionResult Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var issue = await _context.Issues
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var issue = _currentResources.Issue;
             if (issue == null)
             {
                 return NotFound();
@@ -98,7 +92,7 @@ namespace ParallelTracker.Controllers
         }
 
         // GET: Issues/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public IActionResult Edit(int? id)
         {
             var issue = _currentResources.Issue;
             if (issue == null)
