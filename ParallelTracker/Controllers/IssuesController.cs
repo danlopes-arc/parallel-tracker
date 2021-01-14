@@ -27,12 +27,14 @@ namespace ParallelTracker.Controllers
         }
 
         // GET: Issues
+        [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
             return View(await _context.Issues.ToListAsync());
         }
 
         // GET: Issues/Details/5
+        [AllowAnonymous]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -61,13 +63,13 @@ namespace ParallelTracker.Controllers
                 return RedirectToAction("Index", "Repos");
             }
 
-            return View(new IssueInput { RepoId = repo.Id });
+            return View(new CreateIssueInput { RepoId = repo.Id });
         }
 
         // POST: Issues/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(int? repoId, [Bind("RepoId,Title,Text")] IssueInput input)
+        public async Task<IActionResult> Create(int? repoId, [Bind("RepoId,Title,Text")] CreateIssueInput input)
         {
             var repo = await _context.Repos
                 .FindAsync(repoId);
@@ -90,7 +92,7 @@ namespace ParallelTracker.Controllers
 
                 _context.Add(issue);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(ReposController.Details), Text.GetControllerName(typeof(ReposController)), new { id = repo.Id });
+                return RedirectToAction(nameof(Details), new { id = issue.Id });
             }
             return View(input);
         }
@@ -98,17 +100,24 @@ namespace ParallelTracker.Controllers
         // GET: Issues/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var issue = await _context.Issues.FindAsync(id);
+            var issue = _currentResources.Issue;
             if (issue == null)
             {
                 return NotFound();
             }
-            return View(issue);
+
+            if (User.FindFirstValue(ClaimTypes.NameIdentifier) != issue.AuthorId)
+            {
+                TempData.AddAlertMessage(new AlertMessasge(AlertMessageType.Danger, "Only authors can edit their issues"));
+                return RedirectToAction(nameof(Details));
+            }
+
+            return View(new EditIssueInput
+            {
+                Title = issue.Title,
+                Text = issue.Text,
+                IsClosed = issue.IsClosed
+            });
         }
 
         // POST: Issues/Edit/5
@@ -116,15 +125,34 @@ namespace ParallelTracker.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,AuthorId,Title,Text,CreatedAt,EditedAt,ClosedAt")] Issue issue)
+        public async Task<IActionResult> Edit(int id, [Bind("Title,Text,IsClosed")] EditIssueInput input)
         {
-            if (id != issue.Id)
+            var issue = _currentResources.Issue;
+            if (issue == null)
             {
                 return NotFound();
             }
 
             if (ModelState.IsValid)
             {
+                if (input.Title != issue.Title || input.Text != issue.Text)
+                {
+                    issue.EditedAt = DateTime.Now;
+                }
+                issue.Title = input.Title;
+                issue.Text = input.Text;
+                if (input.IsClosed != issue.IsClosed)
+                {
+                    if (input.IsClosed)
+                    {
+                        issue.ClosedAt = DateTime.Now;
+                    }
+                    else
+                    {
+                        issue.ClosedAt = null;
+                    }
+                }
+
                 try
                 {
                     _context.Update(issue);
@@ -141,9 +169,9 @@ namespace ParallelTracker.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Details), new { id = issue.Id });
             }
-            return View(issue);
+            return View(input);
         }
 
         // GET: Issues/Delete/5
@@ -181,7 +209,7 @@ namespace ParallelTracker.Controllers
         }
     }
 
-    public class IssueInput
+    public class CreateIssueInput
     {
         [Required]
         public int RepoId { get; set; }
@@ -191,5 +219,17 @@ namespace ParallelTracker.Controllers
 
         [Required]
         public string Text { get; set; }
+    }
+    public class EditIssueInput
+    {
+        [Required]
+        [StringLength(128)]
+        public string Title { get; set; }
+
+        [Required]
+        public string Text { get; set; }
+        [Required]
+        [Display(Name ="Closed")]
+        public bool IsClosed { get; set; }
     }
 }
