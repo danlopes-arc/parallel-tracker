@@ -54,6 +54,8 @@ namespace ParallelTracker.Controllers
                 .Include(r => r.Owner)
                 .Include(r => r.Issues)
                     .ThenInclude(i => i.Author)
+                .Include(r => r.Issues)
+                    .ThenInclude(i => i.Comments)
                 .FirstOrDefaultAsync(r => r.Id == id);
 
             if (repo == null)

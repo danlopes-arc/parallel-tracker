@@ -2,19 +2,27 @@
 
 @{
 	ViewData["Title"] = $"{Model.FullName}";
-	Layout = "_RepoLayout.cshtml";
+	Layout = "~/Views/Shared/_RepoLayout.cshtml";
 }
 
 <h4>Issues</h4>
-<a asp-controller="Issues" asp-action="Create">New Issue</a>
+<a asp-controller="Issues" asp-action="Create" asp-route-repoId="@Model.Id">New Issue</a>
 @foreach (var issue in Model.Issues)
 {
 	<div class="card mb-2">
-		<div class="card-body">
-			<div class="card-title d-flex flex-row">
-				<a asp-controller="Issues" asp-action="Details" asp-route-id="@issue.Id">@issue.Title</a>
-				<span>!@issue.Comments.Count()</span>
-			</div>
+		<div class="card-body p-3">
+			<h5 class="card-title d-flex flex-row my-0">
+				@if (issue.IsClosed)
+				{
+					<text>&#10004;</text>
+				}
+				else
+				{
+					<text>&#9888;</text>
+				}
+				<a class="ml-1" asp-controller="Issues" asp-action="Details" asp-route-id="@issue.Id">@issue.Title</a>
+				<span class="badge badge-pills badge-light ml-auto p-2">&#128172; @issue.Comments.Count()</span>
+			</h5>
 			<span class="card-subtitle mb-1 text-muted">by <strong>@issue.Author.UserName</strong> on <strong>@issue.CreatedAt.ToString("d")</strong></span>
 		</div>
 	</div>

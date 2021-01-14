@@ -60,6 +60,8 @@ namespace ParallelTracker
                     options.ClientSecret = configSection["ClientSecret"];
                     options.Scope.Add("user:email");
                 });
+
+            services.AddScoped<CurrentResources>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -80,6 +82,8 @@ namespace ParallelTracker
             app.UseStaticFiles();
 
             app.UseRouting();
+
+            app.UseCurrentResources();
 
             app.UseAuthentication();
             app.UseAuthorization();

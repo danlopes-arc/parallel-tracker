@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -11,13 +14,16 @@ using ParallelTracker.Tools;
 
 namespace ParallelTracker.Controllers
 {
+    [Authorize]
     public class IssuesController : Controller
     {
         private readonly ApplicationContext _context;
+        private readonly CurrentResources _currentResources;
 
-        public IssuesController(ApplicationContext context)
+        public IssuesController(ApplicationContext context, CurrentResources currentResources)
         {
             _context = context;
+            _currentResources = currentResources;
         }
 
         // GET: Issues
@@ -45,31 +51,48 @@ namespace ParallelTracker.Controllers
         }
 
         // GET: Issues/Create
-        public IActionResult Create(int? repoId)
+        public async Task<IActionResult> Create(int? repoId)
         {
-            if (repoId == null)
+            var repo = await _context.Repos
+                .FindAsync(repoId);
+            if (repo == null)
             {
                 TempData.AddAlertMessage(new AlertMessasge(AlertMessageType.Danger, "Please, select a repo first"));
                 return RedirectToAction("Index", "Repos");
             }
 
-            return View();
+            return View(new IssueInput { RepoId = repo.Id });
         }
 
         // POST: Issues/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,AuthorId,Title,Text,CreatedAt,EditedAt,ClosedAt")] Issue issue)
+        public async Task<IActionResult> Create(int? repoId, [Bind("RepoId,Title,Text")] IssueInput input)
         {
+            var repo = await _context.Repos
+                .FindAsync(repoId);
+
+            if (repo == null)
+            {
+                return NotFound();
+            }
+
             if (ModelState.IsValid)
             {
+                var issue = new Issue
+                {
+                    Title = input.Title,
+                    Text = input.Text,
+                    AuthorId = User.FindFirstValue(ClaimTypes.NameIdentifier),
+                    RepoId = repo.Id,
+                    CreatedAt = DateTime.Now,
+                };
+
                 _context.Add(issue);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(ReposController.Details), Text.GetControllerName(typeof(ReposController)), new { id = repo.Id });
             }
-            return View(issue);
+            return View(input);
         }
 
         // GET: Issues/Edit/5
@@ -156,5 +179,17 @@ namespace ParallelTracker.Controllers
         {
             return _context.Issues.Any(e => e.Id == id);
         }
+    }
+
+    public class IssueInput
+    {
+        [Required]
+        public int RepoId { get; set; }
+        [Required]
+        [StringLength(128)]
+        public string Title { get; set; }
+
+        [Required]
+        public string Text { get; set; }
     }
 }
