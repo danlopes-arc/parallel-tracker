@@ -62,7 +62,7 @@ namespace ParallelTracker.Controllers
             {
                 return NotFound();
             }
-            return View(new CreateCommentInput { IssueId = issue.Id});
+            return View(new CreateCommentInput { IssueId = issue.Id });
         }
 
         // POST: Comments/Create
@@ -99,37 +99,40 @@ namespace ParallelTracker.Controllers
         }
 
         // GET: Comments/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public IActionResult Edit(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var comment = await _context.Comments.FindAsync(id);
+            var comment = _currentResources.Comment;
             if (comment == null)
             {
                 return NotFound();
             }
-            ViewData["AuthorId"] = new SelectList(_context.Users, "Id", "Id", comment.AuthorId);
-            ViewData["IssueId"] = new SelectList(_context.Issues, "Id", "Id", comment.IssueId);
-            return View(comment);
+
+            return View(new EditCommentInput { Text = comment.Text });
         }
 
         // POST: Comments/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,AuthorId,IssueId,Text,CreatedAt,EditedAt")] Comment comment)
+        public async Task<IActionResult> Edit(int id, [Bind("Text")] EditCommentInput input)
         {
-            if (id != comment.Id)
+            var comment = _currentResources.Comment;
+            if (comment == null)
             {
                 return NotFound();
             }
 
             if (ModelState.IsValid)
             {
+                if (comment.Text == input.Text)
+                {
+                    TempData.AddAlertMessage(new AlertMessasge(AlertMessageType.Info, "You didn't modify the comment"));
+
+                    return RedirectToAction(nameof(IssuesController.Details), Text.GetControllerName(typeof(IssuesController)), new { id = comment.IssueId });
+                }
+
+                comment.Text = input.Text;
+                comment.EditedAt = DateTime.Now;
+
                 try
                 {
                     _context.Update(comment);
@@ -146,11 +149,12 @@ namespace ParallelTracker.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                TempData.AddAlertMessage(new AlertMessasge(AlertMessageType.Success, "The comment was edited sucessfully"));
+
+                return RedirectToAction(nameof(IssuesController.Details), Text.GetControllerName(typeof(IssuesController)), new { id = comment.IssueId });
             }
-            ViewData["AuthorId"] = new SelectList(_context.Users, "Id", "Id", comment.AuthorId);
-            ViewData["IssueId"] = new SelectList(_context.Issues, "Id", "Id", comment.IssueId);
-            return View(comment);
+
+            return View(input);
         }
 
         // GET: Comments/Delete/5
@@ -195,6 +199,11 @@ namespace ParallelTracker.Controllers
         [Required]
         public int IssueId { get; set; }
 
+        [Required]
+        public string Text { get; set; }
+    }
+    public class EditCommentInput
+    {
         [Required]
         public string Text { get; set; }
     }
