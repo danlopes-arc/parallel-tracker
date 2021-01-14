@@ -109,15 +109,14 @@ namespace ParallelTracker.Controllers
             return View(new EditIssueInput
             {
                 Title = issue.Title,
-                Text = issue.Text,
-                IsClosed = issue.IsClosed
+                Text = issue.Text
             });
         }
 
         // POST: Issues/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Title,Text,IsClosed")] EditIssueInput input)
+        public async Task<IActionResult> Edit(int id, [Bind("Title,Text")] EditIssueInput input)
         {
             var issue = _currentResources.Issue;
             if (issue == null)
@@ -127,23 +126,15 @@ namespace ParallelTracker.Controllers
 
             if (ModelState.IsValid)
             {
-                if (input.Title != issue.Title || input.Text != issue.Text)
+                if (input.Title == issue.Title && input.Text == issue.Text)
                 {
-                    issue.EditedAt = DateTime.Now;
+                    TempData.AddAlertMessage(new AlertMessasge(AlertMessageType.Info, "You didn't modify the issue"));
+                    return RedirectToAction(nameof(Details), new { id = issue.Id });
                 }
+
                 issue.Title = input.Title;
                 issue.Text = input.Text;
-                if (input.IsClosed != issue.IsClosed)
-                {
-                    if (input.IsClosed)
-                    {
-                        issue.ClosedAt = DateTime.Now;
-                    }
-                    else
-                    {
-                        issue.ClosedAt = null;
-                    }
-                }
+                issue.EditedAt = DateTime.Now;
 
                 try
                 {
@@ -311,8 +302,5 @@ namespace ParallelTracker.Controllers
 
         [Required]
         public string Text { get; set; }
-        [Required]
-        [Display(Name = "Closed")]
-        public bool IsClosed { get; set; }
     }
 }
