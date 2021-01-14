@@ -63,6 +63,8 @@ namespace ParallelTracker.Controllers
                 return NotFound();
             }
 
+            repo.Issues = repo.Issues.OrderByDescending(i => i.CreatedAt);
+
             return View(repo);
         }
 
