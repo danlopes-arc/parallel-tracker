@@ -107,6 +107,13 @@ namespace ParallelTracker.Controllers
                 return NotFound();
             }
 
+            // Check Permission
+            if (User.FindFirstValue(ClaimTypes.NameIdentifier) != comment.AuthorId)
+            {
+                TempData.AddAlertMessage(new AlertMessasge(AlertMessageType.Danger, "Only authors can edit their comments"));
+                return RedirectToAction(nameof(IssuesController.Details), Text.GetControllerName(typeof(IssuesController)), new { id = comment.Issue.Id });
+            }
+
             return View(new EditCommentInput { Text = comment.Text });
         }
 
@@ -119,6 +126,13 @@ namespace ParallelTracker.Controllers
             if (comment == null)
             {
                 return NotFound();
+            }
+
+            // Check Permission
+            if (User.FindFirstValue(ClaimTypes.NameIdentifier) != comment.AuthorId)
+            {
+                TempData.AddAlertMessage(new AlertMessasge(AlertMessageType.Danger, "Only authors can edit their comments"));
+                return RedirectToAction(nameof(IssuesController.Details), Text.GetControllerName(typeof(IssuesController)), new { id = comment.Issue.Id });
             }
 
             if (ModelState.IsValid)

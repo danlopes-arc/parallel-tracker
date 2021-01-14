@@ -100,10 +100,11 @@ namespace ParallelTracker.Controllers
                 return NotFound();
             }
 
+            // Check Permission
             if (User.FindFirstValue(ClaimTypes.NameIdentifier) != issue.AuthorId)
             {
                 TempData.AddAlertMessage(new AlertMessasge(AlertMessageType.Danger, "Only authors can edit their issues"));
-                return RedirectToAction(nameof(Details));
+                return RedirectToAction(nameof(Details), new { id = issue.Id });
             }
 
             return View(new EditIssueInput
@@ -122,6 +123,13 @@ namespace ParallelTracker.Controllers
             if (issue == null)
             {
                 return NotFound();
+            }
+
+            // Check Permission
+            if (User.FindFirstValue(ClaimTypes.NameIdentifier) != issue.AuthorId)
+            {
+                TempData.AddAlertMessage(new AlertMessasge(AlertMessageType.Danger, "Only authors can edit their issues"));
+                return RedirectToAction(nameof(Details), new { id = issue.Id });
             }
 
             if (ModelState.IsValid)
@@ -168,16 +176,17 @@ namespace ParallelTracker.Controllers
                 return NotFound();
             }
 
+            // Check Permission
             if (User.FindFirstValue(ClaimTypes.NameIdentifier) != issue.Repo.OwnerId)
             {
                 TempData.AddAlertMessage(new AlertMessasge(AlertMessageType.Danger, "Only the repo owner can change its issues status"));
-                return RedirectToAction(nameof(Details));
+                return RedirectToAction(nameof(Details), new { id = issue.Id });
             }
 
             if (issue.IsClosed)
             {
                 TempData.AddAlertMessage(new AlertMessasge(AlertMessageType.Danger, "Issue is already closed"));
-                return RedirectToAction(nameof(Details));
+                return RedirectToAction(nameof(Details), new { id = issue.Id });
             }
 
             issue.ClosedAt = DateTime.Now;
@@ -198,6 +207,7 @@ namespace ParallelTracker.Controllers
                     throw;
                 }
             }
+
             TempData.AddAlertMessage(new AlertMessasge(AlertMessageType.Success, "Issue was closed successfully"));
             return RedirectToAction(nameof(Details), new { id = issue.Id });
         }
@@ -213,16 +223,17 @@ namespace ParallelTracker.Controllers
                 return NotFound();
             }
 
+            // Check Permission
             if (User.FindFirstValue(ClaimTypes.NameIdentifier) != issue.Repo.OwnerId)
             {
                 TempData.AddAlertMessage(new AlertMessasge(AlertMessageType.Danger, "Only the repo owner can change its issues status"));
-                return RedirectToAction(nameof(Details));
+                return RedirectToAction(nameof(Details), new { id = issue.Id });
             }
 
             if (!issue.IsClosed)
             {
                 TempData.AddAlertMessage(new AlertMessasge(AlertMessageType.Danger, "Issue is already open"));
-                return RedirectToAction(nameof(Details));
+                return RedirectToAction(nameof(Details), new { id = issue.Id });
             }
 
             issue.ClosedAt = null;
