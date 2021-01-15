@@ -66,7 +66,11 @@ namespace ParallelTracker.Controllers
         public async Task<IActionResult> Create(int? repoId, [Bind("RepoId,Title,Text")] CreateIssueInput input)
         {
             var repo = await _context.Repos
-                .FindAsync(repoId);
+                .Include(r => r.Owner)
+                .Include(r => r.Issues)
+                    .ThenInclude(i => i.Author)
+                .FirstOrDefaultAsync(r => r.Id == repoId);
+
 
             if (repo == null)
             {
@@ -88,6 +92,8 @@ namespace ParallelTracker.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Details), new { id = issue.Id });
             }
+
+            _currentResources.Repo = repo;
             return View(input);
         }
 

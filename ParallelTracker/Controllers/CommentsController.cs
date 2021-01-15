@@ -71,7 +71,10 @@ namespace ParallelTracker.Controllers
         public async Task<IActionResult> Create([Bind("IssueId,Text")] CreateCommentInput input)
         {
             var issue = await _context.Issues
-                .FirstOrDefaultAsync(i => i.Id == input.IssueId);
+                    .Include(i => i.Author)
+                    .Include(i => i.Comments)
+                        .ThenInclude(c => c.Author)
+                    .FirstOrDefaultAsync(i => i.Id == input.IssueId);
 
             if (issue == null)
             {
@@ -95,6 +98,15 @@ namespace ParallelTracker.Controllers
 
                 return RedirectToAction(nameof(IssuesController.Details), Text.GetControllerName(typeof(IssuesController)), new { id = issue.Id });
             }
+
+            _currentResources.Issue = issue;
+
+            _currentResources.Repo = await _context.Repos
+                    .Include(r => r.Owner)
+                    .Include(r => r.Issues)
+                        .ThenInclude(i => i.Author)
+                    .FirstOrDefaultAsync(r => r.Id == issue.RepoId);
+
             return View(input);
         }
 
