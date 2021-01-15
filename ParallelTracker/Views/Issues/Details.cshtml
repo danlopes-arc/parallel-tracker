@@ -3,7 +3,7 @@
 
 @{
 	var issue = CurrentResources.Issue;
-	ViewData["Title"] = $"Issue #{issue.Id}";
+	ViewData["Title"] = $"Issue #{issue.Id} {issue.Title}";
 	Layout = "~/Views/Shared/_IssueLayout.cshtml";
 	var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 	var isIssueAuthor = currentUserId == issue.AuthorId;

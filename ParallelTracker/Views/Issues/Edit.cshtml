@@ -1,7 +1,8 @@
 ﻿@model ParallelTracker.Controllers.EditIssueInput
 @inject ParallelTracker.Tools.CurrentResources CurrentResources
 @{
-	ViewData["Title"] = $"Edit Issue";
+	var issue = CurrentResources.Issue;
+	ViewData["Title"] = $"Edit Issue #{issue.Id}";
 	Layout = "~/Views/Shared/_RepoLayout.cshtml";
 }
 <div class="card">
