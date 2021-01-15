@@ -124,7 +124,14 @@ namespace ParallelTracker.Controllers
             if (!string.IsNullOrEmpty(issueFilter.Text))
             {
                 var lowerText = issueFilter.Text.ToLower();
-                repo.Issues = repo.Issues.Where(i => i.Title.ToLower().Contains(lowerText) || i.Text.ToLower().Contains(lowerText));
+                await _context.Comments
+                    .Where(c => c.Issue.RepoId == repo.Id)
+                    .ToListAsync();
+
+                repo.Issues = repo.Issues
+                    .Where(i => i.Title.ToLower().Contains(lowerText) ||
+                    i.Text.ToLower().Contains(lowerText) ||
+                    (i.FindCommentsByText(lowerText)?.Count() ?? 0) > 0);
             }
 
             return View(new RepoDetailsVm

@@ -23,5 +23,10 @@ namespace ParallelTracker.Models
 
         public bool IsClosed => ClosedAt != null;
         public bool IsEdited => EditedAt != null;
+
+        public IEnumerable<Comment> FindCommentsByText(string text)
+        {
+            return Comments?.Where(c => c.Text.ToLower().Contains(text.ToLower()));
+        }
     }
 }
