@@ -43,7 +43,7 @@ namespace ParallelTracker.Controllers
 
         // GET: Repos/Details/5
         [AllowAnonymous]
-        public async Task<IActionResult> Details(int? id, [Bind] IssueFilter issueFilter)
+        public async Task<IActionResult> Details(int? id, [Bind] IssueFilter issueFilter, int? page)
         {
             if (id == null)
             {
@@ -134,12 +134,24 @@ namespace ParallelTracker.Controllers
                     (i.FindCommentsByText(lowerText)?.Count() ?? 0) > 0);
             }
 
+            page  = Math.Max(page.GetValueOrDefault(), 1);
+            var totalPages = (int)Math.Ceiling(repo.Issues.Count() / 2f);
+
+            if (page > 0)
+            {
+                repo.Issues = repo.Issues
+                    .Skip(2 * (page.Value - 1))
+                    .Take(2);
+            }
+
             return View(new RepoDetailsVm
             {
                 Repo = repo,
                 IssueFilter = issueFilter,
                 SortModeSelectList = sortModeSelectList,
-                IssueStatusSelectList = issueStatusSelectList
+                IssueStatusSelectList = issueStatusSelectList,
+                Page = page.Value,
+                TotalPages = totalPages
             });
         }
 
@@ -340,5 +352,7 @@ namespace ParallelTracker.Controllers
         public IssueFilter IssueFilter { get; set; }
         public SelectList SortModeSelectList { get; set; }
         public SelectList IssueStatusSelectList { get; set; }
+        public int Page { get; set; }
+        public int TotalPages { get; set; }
     }
 }
