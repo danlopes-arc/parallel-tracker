@@ -10,14 +10,14 @@
 	<div class="card-body p-2 px-3">@repo.Description</div>
 </div>
 <hr />
-<h4 class="d-flex flex-row mb-3">
-	Issues
-	<a class="btn btn-sm btn-primary ml-auto" asp-controller="Issues" asp-action="Create" asp-route-repoId="@repo.Id">&#127775; New Issue</a>
-</h4>
+
+<div class="d-flex flex-row justify-content-center mb-3">
+	<a class="btn btn-primary" asp-controller="Issues" asp-action="Create" asp-route-repoId="@repo.Id">&#127775; New Issue</a>
+</div>
 
 <form asp-action="Details" method="get" class="form-inline d-flex flex-row ">
 	<label class="sr-only" asp-for="IssueFilter.Text"></label>
-	<div class="input-group mb-2 mr-sm-2 flex-fill">
+	<div class="input-group mb-2 mr-lg-2 flex-fill">
 		<div class="input-group-prepend">
 			<div class="input-group-text">Sort</div>
 		</div>
