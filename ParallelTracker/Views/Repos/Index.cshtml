@@ -5,10 +5,13 @@
 	Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>@ViewData["Title"]</h1>
+<div class="d-flex flex-row align-items-center">
+	<h1 class="flex-fill">@ViewData["Title"]</h1>
+	<a class="btn btn-primary" asp-action="Create">&#127775; Copy a GitHub Repo</a>
+</div>
 
 <p>
-	<a asp-action="Create">Copy a GitHub Repo</a>
+	
 </p>
 
 @if (Model.Count() == 0)
