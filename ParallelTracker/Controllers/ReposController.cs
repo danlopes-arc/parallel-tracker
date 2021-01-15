@@ -43,7 +43,7 @@ namespace ParallelTracker.Controllers
 
         // GET: Repos/Details/5
         [AllowAnonymous]
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int? id, [Bind] IssueFilter issueFilter)
         {
             if (id == null)
             {
@@ -63,9 +63,77 @@ namespace ParallelTracker.Controllers
                 return NotFound();
             }
 
-            repo.Issues = repo.Issues.OrderByDescending(i => i.CreatedAt);
+            issueFilter.SortMode ??= SortModes.Newest;
+            switch (issueFilter.SortMode)
+            {
+                case SortModes.Oldest:
+                    repo.Issues = repo.Issues.OrderBy(i => i.CreatedAt);
+                    break;
+                case SortModes.MostComments:
+                    repo.Issues = repo.Issues.OrderByDescending(i => i.Comments.Count());
+                    break;
+                case SortModes.LeastComments:
+                    repo.Issues = repo.Issues.OrderBy(i => i.Comments.Count());
+                    break;
+                case SortModes.Newest:
+                default:
+                    repo.Issues = repo.Issues.OrderByDescending(i => i.CreatedAt);
+                    issueFilter.SortMode = SortModes.Newest;
+                    break;
+            }
+            var sortModeSelectList = new SelectList(new[]
+            {
+                new { Code = SortModes.Newest, Text = "Newest"},
+                new { Code = SortModes.Oldest, Text = "Oldest"},
+                new { Code = SortModes.MostComments, Text = "Most Comments"},
+                new { Code = SortModes.LeastComments, Text = "Least Comments"},
+            }, "Code", "Text", issueFilter.SortMode);
 
-            return View(repo);
+
+            issueFilter.Status ??= IssueStatus.All;
+            if (issueFilter.YourIssues && User.Identity.IsAuthenticated)
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                repo.Issues = repo.Issues.Where(i => i.AuthorId == userId);
+            }
+            switch (issueFilter.Status)
+            {
+                case IssueStatus.Closed:
+                    repo.Issues = repo.Issues.Where(i => i.IsClosed);
+                    break;
+                case IssueStatus.Open:
+                    repo.Issues = repo.Issues.Where(i => !i.IsClosed);
+                    break;
+                case IssueStatus.All:
+                default:
+                    issueFilter.Status = IssueStatus.All;
+                    break;
+            }
+            var issueStatusSelectList = new SelectList(new[]
+            {
+                new { Code = IssueStatus.All, Text = "All Issues"},
+                new { Code = IssueStatus.Open, Text = "Open Issues"},
+                new { Code = IssueStatus.Closed, Text = "Closed Issues"},
+            }, "Code", "Text", issueFilter.Status);
+
+            if (issueFilter.YourIssues && User.Identity.IsAuthenticated)
+            {
+                repo.Issues = repo.Issues.Where(r => r.AuthorId == User.FindFirstValue(ClaimTypes.NameIdentifier));
+            }
+
+            if (!string.IsNullOrEmpty(issueFilter.Text))
+            {
+                var lowerText = issueFilter.Text.ToLower();
+                repo.Issues = repo.Issues.Where(i => i.Title.ToLower().Contains(lowerText) || i.Text.ToLower().Contains(lowerText));
+            }
+
+            return View(new RepoDetailsVm
+            {
+                Repo = repo,
+                IssueFilter = issueFilter,
+                SortModeSelectList = sortModeSelectList,
+                IssueStatusSelectList = issueStatusSelectList
+            });
         }
 
         // GET: Repos/Create
@@ -226,6 +294,7 @@ namespace ParallelTracker.Controllers
         private bool RepoExists(int id)
         {
             return _context.Repos.Any(e => e.Id == id);
+            //async = new SelectListItem()
         }
 
         public class ChooseRepoInput
@@ -234,5 +303,35 @@ namespace ParallelTracker.Controllers
             [DisplayName("Repo Full Name")]
             public string FullName { get; set; }
         }
+    }
+
+    public static class SortModes
+    {
+        public const string Newest = nameof(Newest);
+        public const string Oldest = nameof(Oldest);
+        public const string MostComments = nameof(MostComments);
+        public const string LeastComments = nameof(LeastComments);
+    }
+    public static class IssueStatus
+    {
+        public const string Open = nameof(Open);
+        public const string Closed = nameof(Closed);
+        public const string All = nameof(All);
+    }
+
+    public class IssueFilter
+    {
+        public bool YourIssues { get; set; }
+        public string Text { get; set; }
+        public string Status { get; set; }
+        public string SortMode { get; set; }
+    }
+
+    public class RepoDetailsVm
+    {
+        public Repo Repo { get; set; }
+        public IssueFilter IssueFilter { get; set; }
+        public SelectList SortModeSelectList { get; set; }
+        public SelectList IssueStatusSelectList { get; set; }
     }
 }
