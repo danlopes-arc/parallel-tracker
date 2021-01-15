@@ -1,25 +1,49 @@
-﻿@model IEnumerable<ParallelTracker.Models.Repo>
+﻿@using Microsoft.AspNetCore.Http
+@using System.Web
+@model ParallelTracker.Controllers.RepoIndexVm
 
 @{
 	ViewData["Title"] = "Repos";
 	Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="d-flex flex-row align-items-center">
+<div class="d-flex flex-row align-items-center mb-3">
 	<h3 class="flex-fill">@ViewData["Title"]</h3>
 	<a class="btn btn-primary" asp-action="Create">&#127775; Copy a GitHub Repo</a>
 </div>
 
-@if (Model.Count() == 0)
-{
-<div class="card">
-	<div class="card-body text-center">
-		The list is empty.
+<form asp-action="Index" method="get" class="form-inline d-flex flex-row ">
+	<label class="sr-only" asp-for="Filter.Text"></label>
+	<div class="input-group mb-2 mr-lg-2 flex-fill">
+		<div class="input-group-prepend">
+			<div class="input-group-text">Sort</div>
+		</div>
+
+		<select class="custom-select" asp-for="Filter.SortMode" asp-items="@Model.SortModeSelectList">
+		</select>
+
+		<input class="form-control w-50" asp-for="Filter.Text" placeholder="Search">
+
 	</div>
-</div>
+	<div class="d-flex flex-row justify-content-between">
+		<div class="btn-group ml-2 mb-3 mb-sm-2">
+			<a asp-action="Index" class="btn btn-secondary">Clear</a>
+			<button type="submit" class=" btn btn-primary">Filter</button>
+		</div>
+	</div>
+
+</form>
+
+@if (Model.Repos.Count() == 0)
+{
+	<div class="card">
+		<div class="card-body text-center">
+			The List is empty.
+		</div>
+	</div>
 }
 
-@foreach (var repo in Model)
+@foreach (var repo in Model.Repos)
 {
 	<div class="card mb-2 shadow-sm">
 		<div class="card-body">
@@ -32,3 +56,44 @@
 		</div>
 	</div>
 }
+
+@{
+	var isOutOfBounds = Model.Page < 1 || Model.Page > Model.TotalPages;
+	var isPrevDisabled = Model.Page <= 1 || isOutOfBounds;
+	var isNextDisabled = Model.Page >= Model.TotalPages || isOutOfBounds;
+
+	var query = System.Web.HttpUtility.ParseQueryString(Context.Request.QueryString.ToString());
+
+	var actionUrl = Url.Action("Index", "Repos");
+
+	query.Set("page", (Model.Page - 1).ToString());
+	var prevPageUrl = actionUrl + "?" + query;
+	query.Set("page", (Model.Page + 1).ToString());
+	var nextPageUrl = actionUrl + "?" + query;
+}
+
+<nav>
+	<ul class="pagination justify-content-center">
+		<li class="page-item @(isPrevDisabled ? "disabled" : "")">
+			<a class="page-link" aria-label="Previous" href="@prevPageUrl">
+				<span aria-hidden="true">&laquo;</span>
+				<span class="sr-only">Previous</span>
+			</a>
+		</li>
+		@for (int i = 1; i <= Model.TotalPages; i++)
+		{
+			query.Set("page", i.ToString());
+			var pageUrl = actionUrl + "?" + query;
+			<li class="page-item @(Model.Page == i ? "active" : "")">
+				<a class="page-link" href="@pageUrl">@i</a>
+			</li>
+		}
+
+		<li class="page-item @(isNextDisabled ? "disabled" : "")">
+			<a class="page-link" aria-label="Next" href="@nextPageUrl">
+				<span aria-hidden="true">&raquo;</span>
+				<span class="sr-only">Next</span>
+			</a>
+		</li>
+	</ul>
+</nav>

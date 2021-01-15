@@ -23,6 +23,9 @@ namespace ParallelTracker.Controllers
     [Authorize]
     public class ReposController : Controller
     {
+        public const int RepoPageSize = 10;
+        public const int IssuePageSize = 15;
+
         private readonly ApplicationContext _context;
 
         public ReposController(ApplicationContext context)
@@ -32,18 +35,63 @@ namespace ParallelTracker.Controllers
 
         // GET: Repos
         [AllowAnonymous]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index([Bind] RepoFilter filter, int? page)
         {
-            var repos = await _context.Repos
+            IEnumerable<Repo> repos = await _context.Repos
                 .Include(r => r.Owner)
                 .ToListAsync();
 
-            return View(repos);
+            filter.SortMode ??= RepoSortModes.Newest;
+            switch (filter.SortMode)
+            {
+                case RepoSortModes.Oldest:
+                    repos = repos.OrderBy(r => r.CopiedAt);
+                    break;
+                case RepoSortModes.Newest:
+                default:
+                    repos = repos.OrderByDescending(r => r.CopiedAt);
+                    filter.SortMode = RepoSortModes.Newest;
+                    break;
+            }
+            var sortModeSelectList = new SelectList(new[]
+            {
+                new { Code = RepoSortModes.Newest, Text = "Newest"},
+                new { Code = RepoSortModes.Oldest, Text = "Oldest"}
+            }, "Code", "Text", filter.SortMode);
+
+            if (!string.IsNullOrEmpty(filter.Text))
+            {
+                var lowerText = filter.Text.ToLower();
+
+                repos = repos
+                    .Where(r => r.FullName.ToLower().Contains(lowerText) ||
+                    r.Description.ToLower().Contains(lowerText))
+                    .ToList();
+            }
+
+            page = Math.Max(page.GetValueOrDefault(), 1);
+            var totalPages = (int)Math.Ceiling(repos.Count() / (float)RepoPageSize);
+
+            if (page > 0)
+            {
+                repos = repos
+                    .Skip(RepoPageSize * (page.Value - 1))
+                    .Take(RepoPageSize);
+            }
+
+            return View(new RepoIndexVm
+            {
+                Repos = repos,
+                Filter = filter,
+                SortModeSelectList = sortModeSelectList,
+                Page = page.Value,
+                TotalPages = totalPages
+            });
         }
 
         // GET: Repos/Details/5
         [AllowAnonymous]
-        public async Task<IActionResult> Details(int? id, [Bind] IssueFilter issueFilter, int? page)
+        public async Task<IActionResult> Details(int? id, [Bind] IssueFilter filter, int? page)
         {
             if (id == null)
             {
@@ -63,40 +111,40 @@ namespace ParallelTracker.Controllers
                 return NotFound();
             }
 
-            issueFilter.SortMode ??= SortModes.Newest;
-            switch (issueFilter.SortMode)
+            filter.SortMode ??= IssueSortModes.Newest;
+            switch (filter.SortMode)
             {
-                case SortModes.Oldest:
+                case IssueSortModes.Oldest:
                     repo.Issues = repo.Issues.OrderBy(i => i.CreatedAt);
                     break;
-                case SortModes.MostComments:
+                case IssueSortModes.MostComments:
                     repo.Issues = repo.Issues.OrderByDescending(i => i.Comments.Count());
                     break;
-                case SortModes.LeastComments:
+                case IssueSortModes.LeastComments:
                     repo.Issues = repo.Issues.OrderBy(i => i.Comments.Count());
                     break;
-                case SortModes.Newest:
+                case IssueSortModes.Newest:
                 default:
                     repo.Issues = repo.Issues.OrderByDescending(i => i.CreatedAt);
-                    issueFilter.SortMode = SortModes.Newest;
+                    filter.SortMode = IssueSortModes.Newest;
                     break;
             }
             var sortModeSelectList = new SelectList(new[]
             {
-                new { Code = SortModes.Newest, Text = "Newest"},
-                new { Code = SortModes.Oldest, Text = "Oldest"},
-                new { Code = SortModes.MostComments, Text = "Most Comments"},
-                new { Code = SortModes.LeastComments, Text = "Least Comments"},
-            }, "Code", "Text", issueFilter.SortMode);
+                new { Code = IssueSortModes.Newest, Text = "Newest"},
+                new { Code = IssueSortModes.Oldest, Text = "Oldest"},
+                new { Code = IssueSortModes.MostComments, Text = "Most Comments"},
+                new { Code = IssueSortModes.LeastComments, Text = "Least Comments"},
+            }, "Code", "Text", filter.SortMode);
 
 
-            issueFilter.Status ??= IssueStatus.All;
-            if (issueFilter.YourIssues && User.Identity.IsAuthenticated)
+            filter.Status ??= IssueStatus.All;
+            if (filter.YourIssues && User.Identity.IsAuthenticated)
             {
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 repo.Issues = repo.Issues.Where(i => i.AuthorId == userId);
             }
-            switch (issueFilter.Status)
+            switch (filter.Status)
             {
                 case IssueStatus.Closed:
                     repo.Issues = repo.Issues.Where(i => i.IsClosed);
@@ -106,7 +154,7 @@ namespace ParallelTracker.Controllers
                     break;
                 case IssueStatus.All:
                 default:
-                    issueFilter.Status = IssueStatus.All;
+                    filter.Status = IssueStatus.All;
                     break;
             }
             var issueStatusSelectList = new SelectList(new[]
@@ -114,16 +162,16 @@ namespace ParallelTracker.Controllers
                 new { Code = IssueStatus.All, Text = "All Issues"},
                 new { Code = IssueStatus.Open, Text = "Open Issues"},
                 new { Code = IssueStatus.Closed, Text = "Closed Issues"},
-            }, "Code", "Text", issueFilter.Status);
+            }, "Code", "Text", filter.Status);
 
-            if (issueFilter.YourIssues && User.Identity.IsAuthenticated)
+            if (filter.YourIssues && User.Identity.IsAuthenticated)
             {
                 repo.Issues = repo.Issues.Where(r => r.AuthorId == User.FindFirstValue(ClaimTypes.NameIdentifier));
             }
 
-            if (!string.IsNullOrEmpty(issueFilter.Text))
+            if (!string.IsNullOrEmpty(filter.Text))
             {
-                var lowerText = issueFilter.Text.ToLower();
+                var lowerText = filter.Text.ToLower();
                 await _context.Comments
                     .Where(c => c.Issue.RepoId == repo.Id)
                     .ToListAsync();
@@ -135,19 +183,19 @@ namespace ParallelTracker.Controllers
             }
 
             page  = Math.Max(page.GetValueOrDefault(), 1);
-            var totalPages = (int)Math.Ceiling(repo.Issues.Count() / 2f);
+            var totalPages = (int)Math.Ceiling(repo.Issues.Count() / (float)IssuePageSize);
 
             if (page > 0)
             {
                 repo.Issues = repo.Issues
-                    .Skip(2 * (page.Value - 1))
-                    .Take(2);
+                    .Skip(IssuePageSize * (page.Value - 1))
+                    .Take(IssuePageSize);
             }
 
             return View(new RepoDetailsVm
             {
                 Repo = repo,
-                IssueFilter = issueFilter,
+                Filter = filter,
                 SortModeSelectList = sortModeSelectList,
                 IssueStatusSelectList = issueStatusSelectList,
                 Page = page.Value,
@@ -324,7 +372,7 @@ namespace ParallelTracker.Controllers
         }
     }
 
-    public static class SortModes
+    public static class IssueSortModes
     {
         public const string Newest = nameof(Newest);
         public const string Oldest = nameof(Oldest);
@@ -349,9 +397,32 @@ namespace ParallelTracker.Controllers
     public class RepoDetailsVm
     {
         public Repo Repo { get; set; }
-        public IssueFilter IssueFilter { get; set; }
+        public IssueFilter Filter { get; set; }
         public SelectList SortModeSelectList { get; set; }
         public SelectList IssueStatusSelectList { get; set; }
+        public int Page { get; set; }
+        public int TotalPages { get; set; }
+    }
+
+
+
+    public static class RepoSortModes
+    {
+        public const string Newest = nameof(Newest);
+        public const string Oldest = nameof(Oldest);
+    }
+
+    public class RepoFilter
+    {
+        public string Text { get; set; }
+        public string SortMode { get; set; }
+    }
+
+    public class RepoIndexVm
+    {
+        public IEnumerable<Repo> Repos { get; set; }
+        public RepoFilter Filter { get; set; }
+        public SelectList SortModeSelectList { get; set; }
         public int Page { get; set; }
         public int TotalPages { get; set; }
     }
