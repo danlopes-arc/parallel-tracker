@@ -2,34 +2,10 @@
 @inject ParallelTracker.Tools.CurrentResources CurrentResources
 @{
 	ViewData["Title"] = "Edit your comment";
-	Layout = "~/Views/Shared/_RepoLayout.cshtml";
+	Layout = "~/Views/Shared/_IssueLayout.cshtml";
 	var issue = CurrentResources.Issue;
 	var repo = issue.Repo;
 }
-
-<h4 class="d-flex flex-row">
-	@if (issue.IsClosed)
-	{
-		<text>&#10004;</text>
-	}
-	else
-	{
-		<text>&#9888;</text>
-	}
-	<span class="ml-1">@issue.Title</span>
-	@*<span class="ml-auto">
-			<a class="btn btn-sm btn-primary" asp-controller="Comments" asp-action="Create" asp-route-issueId="@Model.Id">Comment</a>
-			<a class="btn btn-sm btn-primary ml-1" asp-action="Edit" asp-route-id="@Model.Id">Edit</a>
-		</span>*@
-</h4>
-<p class="text-muted" style="font-size: small">
-	opened by <strong>@issue.Author.UserName</strong> on <strong>@issue.CreatedAt.ToString("d")</strong>
-	@if (issue.IsClosed)
-	{
-		<br />
-		<text>closed on <strong>@issue.ClosedAt?.ToString("d")</strong></text>
-	}
-</p>
 
 <div class="card">
 	<div class="card-header">

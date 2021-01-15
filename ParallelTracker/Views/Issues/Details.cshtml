@@ -4,60 +4,10 @@
 @{
 	var issue = CurrentResources.Issue;
 	ViewData["Title"] = $"Issue #{issue.Id}";
-	Layout = "~/Views/Shared/_RepoLayout.cshtml";
+	Layout = "~/Views/Shared/_IssueLayout.cshtml";
 	var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 	var isIssueAuthor = currentUserId == issue.AuthorId;
-	var isOwner = currentUserId == issue.Repo.OwnerId;
 }
-
-<div class="d-flex flex-row row">
-	<h4 class="text-break col-md-8 col-lg-9">
-		<span class="badge badge-light border badge-pill text-muted">
-			@if (issue.IsClosed)
-			{
-				<text>&#10004; closed</text>
-			}
-			else
-			{
-				<text>&#9888; open</text>
-			}
-		</span>
-		<span class="ml-1">@issue.Title</span>
-	</h4>
-	<div class="ml-md-auto ml-3 mr-3">
-		<div class="d-flex flex-row">
-			<a class="btn btn-sm btn-primary" asp-controller="Comments" asp-action="Create" asp-route-issueId="@Model.Id">Comment</a>
-			@if (isOwner)
-			{
-				if (issue.IsClosed)
-				{
-					<form asp-action="Reopen" asp-route-id="@Model.Id">
-						<button type="submit" class="btn btn-sm btn-primary ml-1">Reopen</button>
-					</form>
-				}
-				else
-				{
-					<form asp-action="Close" asp-route-id="@Model.Id">
-						<button type="submit" class="btn btn-sm btn-primary ml-1">Close</button>
-					</form>
-				}
-			}
-			@if (isIssueAuthor)
-			{
-				<a class="btn btn-sm btn-primary ml-1" asp-action="Edit" asp-route-id="@Model.Id">Edit</a>
-			}
-		</div>
-	</div>
-</div>
-
-<p class="text-muted" style="font-size: small">
-	opened by <strong>@issue.Author.UserName</strong> on <strong>@issue.CreatedAt.ToString("d")</strong>
-	@if (issue.IsClosed)
-	{
-		<br />
-		<text>closed on <strong>@issue.ClosedAt?.ToString("d")</strong></text>
-	}
-</p>
 
 <div class="card shadow-sm mb-3">
 	<div class="card-header text-muted py-1 d-flex flex-row">
