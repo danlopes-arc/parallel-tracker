@@ -11,5 +11,7 @@ namespace ParallelTracker.Models
         public string Name { get; set; }
 
         public IEnumerable<Repo> Repos { get; set; }
+        public IEnumerable<Issue> Issues { get; set; }
+        public IEnumerable<Comment> Comments { get; set; }
     }
 }
