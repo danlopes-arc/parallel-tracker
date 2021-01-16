@@ -83,6 +83,9 @@ namespace ParallelTracker.Controllers
 
                 _context.Add(issue);
                 await _context.SaveChangesAsync();
+
+                TempData.AddAlertMessage(new AlertMessasge(AlertMessageType.Success, "Issue opened succesfully"));
+
                 return RedirectToAction(nameof(Details), new { id = issue.Id });
             }
 
@@ -159,6 +162,9 @@ namespace ParallelTracker.Controllers
                         throw;
                     }
                 }
+
+                TempData.AddAlertMessage(new AlertMessasge(AlertMessageType.Success, "Issue edited succesfully"));
+
                 return RedirectToAction(nameof(Details), new { id = issue.Id });
             }
             return View(input);
