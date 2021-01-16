@@ -81,6 +81,8 @@
 }
 
 @{
+	Model.TotalPages = Math.Max(Model.TotalPages, 1);
+
 	var isOutOfBounds = Model.Page < 1 || Model.Page > Model.TotalPages;
 	var isPrevDisabled = Model.Page <= 1 || isOutOfBounds;
 	var isNextDisabled = Model.Page >= Model.TotalPages || isOutOfBounds;
@@ -93,30 +95,30 @@
 	var prevPageUrl = actionUrl + "?" + query;
 	query.Set("page", (Model.Page + 1).ToString());
 	var nextPageUrl = actionUrl + "?" + query;
-}
 
-<nav>
-	<ul class="pagination justify-content-center">
-		<li class="page-item @(isPrevDisabled ? "disabled" : "")">
-			<a class="page-link" aria-label="Previous" href="@prevPageUrl">
-				<span aria-hidden="true">&laquo;</span>
-				<span class="sr-only">Previous</span>
-			</a>
-		</li>
-		@for (int i = 1; i <= Model.TotalPages; i++)
-		{
-			query.Set("page", i.ToString());
-			var pageUrl = actionUrl + "?" + query;
-			<li class="page-item @(Model.Page == i ? "active" : "")">
-				<a class="page-link" href="@pageUrl">@i</a>
+	<nav>
+		<ul class="pagination justify-content-center">
+			<li class="page-item @(isPrevDisabled ? "disabled" : "")">
+				<a class="page-link" aria-label="Previous" href="@prevPageUrl">
+					<span aria-hidden="true">&laquo;</span>
+					<span class="sr-only">Previous</span>
+				</a>
 			</li>
-		}
+			@for (int i = 1; i <= Model.TotalPages; i++)
+			{
+				query.Set("page", i.ToString());
+				var pageUrl = actionUrl + "?" + query;
+				<li class="page-item @(Model.Page == i ? "active" : "")">
+					<a class="page-link" href="@pageUrl">@i</a>
+				</li>
+			}
 
-		<li class="page-item @(isNextDisabled ? "disabled" : "")">
-			<a class="page-link" aria-label="Next" href="@nextPageUrl">
-				<span aria-hidden="true">&raquo;</span>
-				<span class="sr-only">Next</span>
-			</a>
-		</li>
-	</ul>
-</nav>
+			<li class="page-item @(isNextDisabled ? "disabled" : "")">
+				<a class="page-link" aria-label="Next" href="@nextPageUrl">
+					<span aria-hidden="true">&raquo;</span>
+					<span class="sr-only">Next</span>
+				</a>
+			</li>
+		</ul>
+	</nav>
+}
