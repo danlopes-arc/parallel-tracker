@@ -24,7 +24,6 @@
 
 <h3>
 	<img src="@repo.AvatarUrl" alt="Repo avatar" height="45" class="mr-2" />
-	@*<a href="@repo.GitHubOwnerUrl" target="_blank">@repo.GitHubOwnerLogin</a>/<a href="@repo.Url" target="_blank">@repo.Name</a>*@
 	<a asp-controller="Repos" asp-action="Details" asp-route-id="@repo.Id">@repo.FullName</a>
 </h3>
 
@@ -32,14 +31,8 @@
 	Copied by <strong>@repo.Owner.UserName</strong> on <strong>@repo.CopiedAt.ToString("d")</strong><br />
 	<a href="@repo.Url" target="_blank">GitHub page</a>
 </p>
-@*<ul class="nav nav-tabs mb-3">
-	<li class="nav-item">
-		<a class="nav-link @getActiveText("Issues")" asp-controller="@Text.GetControllerName(typeof(ReposController))" asp-action="@nameof(ReposController.Details)" asp-route-id="@repo.Id">Issues</a>
-	</li>
-	<li class="nav-item">
-		<a class="nav-link @getActiveText("Edit")" asp-controller="@Text.GetControllerName(typeof(ReposController))" asp-action="@nameof(ReposController.Edit)" asp-route-id="@repo.Id">Manage</a>
-	</li>
-</ul>*@
 @RenderBody()
 
-@await RenderSectionAsync("Scripts", required: false)
+@section Scripts {
+	@await RenderSectionAsync("Scripts", required: false)
+}
