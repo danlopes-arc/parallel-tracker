@@ -26,34 +26,6 @@ namespace ParallelTracker.Controllers
             _currentResources = currentResources;
         }
 
-        // GET: Comments
-        public async Task<IActionResult> Index()
-        {
-            var applicationContext = _context.Comments.Include(c => c.Author).Include(c => c.Issue);
-            return View(await applicationContext.ToListAsync());
-        }
-
-        // GET: Comments/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var comment = await _context.Comments
-                .Include(c => c.Author)
-                .Include(c => c.Issue)
-                    .ThenInclude(i => i.Repo)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (comment == null)
-            {
-                return NotFound();
-            }
-
-            return View(comment);
-        }
-
         // GET: Comments/Create
         public IActionResult Create(int? issueId)
         {
@@ -181,37 +153,6 @@ namespace ParallelTracker.Controllers
             }
 
             return View(input);
-        }
-
-        // GET: Comments/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var comment = await _context.Comments
-                .Include(c => c.Author)
-                .Include(c => c.Issue)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (comment == null)
-            {
-                return NotFound();
-            }
-
-            return View(comment);
-        }
-
-        // POST: Comments/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var comment = await _context.Comments.FindAsync(id);
-            _context.Comments.Remove(comment);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
         }
 
         private bool CommentExists(int id)

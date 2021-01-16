@@ -26,13 +26,6 @@ namespace ParallelTracker.Controllers
             _currentResources = currentResources;
         }
 
-        // GET: Issues
-        [AllowAnonymous]
-        public async Task<IActionResult> Index()
-        {
-            return View(await _context.Issues.ToListAsync());
-        }
-
         // GET: Issues/Details/5
         [AllowAnonymous]
         public IActionResult Details(int? id)
@@ -262,35 +255,6 @@ namespace ParallelTracker.Controllers
             }
             TempData.AddAlertMessage(new AlertMessasge(AlertMessageType.Success, "Issue was reopened successfully"));
             return RedirectToAction(nameof(Details), new { id = issue.Id });
-        }
-
-        // GET: Issues/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var issue = await _context.Issues
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (issue == null)
-            {
-                return NotFound();
-            }
-
-            return View(issue);
-        }
-
-        // POST: Issues/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var issue = await _context.Issues.FindAsync(id);
-            _context.Issues.Remove(issue);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
         }
 
         private bool IssueExists(int id)
