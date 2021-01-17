@@ -90,6 +90,21 @@ namespace ParallelTracker
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapGet("/Identity/Account/Manage/DeletePersonalData", context =>
+                    Task.Factory.StartNew(() => context.Response.Redirect("/", true)));
+                endpoints.MapPost("/Identity/Account/Manage/DeletePersonalData", context =>
+                    Task.Factory.StartNew(() => context.Response.Redirect("/", true)));
+
+                endpoints.MapGet("/Identity/Account/Manage/DownloadPersonalData", context =>
+                    Task.Factory.StartNew(() => context.Response.Redirect("/", true)));
+                endpoints.MapPost("/Identity/Account/Manage/DownloadPersonalData", context =>
+                    Task.Factory.StartNew(() => context.Response.Redirect("/", true)));
+
+                endpoints.MapGet("/Identity/Account/Manage/PersonalData", context =>
+                    Task.Factory.StartNew(() => context.Response.Redirect("/", true)));
+                endpoints.MapPost("/Identity/Account/Manage/PersonalData", context =>
+                    Task.Factory.StartNew(() => context.Response.Redirect("/", true)));
+
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Repos}/{action=Index}/{id?}");
