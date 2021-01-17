@@ -49,8 +49,7 @@ namespace ParallelTracker.Areas.Identity.Pages.Account.Manage
 
             Input = new InputModel
             {
-                PhoneNumber = phoneNumber,
-                Name = user.Name
+                PhoneNumber = phoneNumber
             };
         }
 
@@ -90,8 +89,6 @@ namespace ParallelTracker.Areas.Identity.Pages.Account.Manage
                     return RedirectToPage();
                 }
             }
-
-            user.Name = Input.Name;
 
             var updateResult = await _userManager.UpdateAsync(user);
 
