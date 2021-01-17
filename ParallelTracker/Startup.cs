@@ -47,12 +47,6 @@ namespace ParallelTracker
             services.AddControllersWithViews();
 
             services.AddAuthentication()
-                .AddGoogle(options =>
-                {
-                    var configSection = Configuration.GetSection("Google");
-                    options.ClientId = configSection["ClientId"];
-                    options.ClientSecret = configSection["ClientSecret"];
-                })
                 .AddGitHub(options =>
                 {
                     var configSection = Configuration.GetSection("GitHub");
@@ -60,6 +54,12 @@ namespace ParallelTracker
                     options.ClientSecret = configSection["ClientSecret"];
                     options.Scope.Add("user:email");
                 });
+                //.AddGoogle(options =>
+                //{
+                //    var configSection = Configuration.GetSection("Google");
+                //    options.ClientId = configSection["ClientId"];
+                //    options.ClientSecret = configSection["ClientSecret"];
+                //})
 
             services.AddScoped<CurrentResources>();
         }
