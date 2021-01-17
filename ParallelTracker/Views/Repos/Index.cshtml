@@ -36,7 +36,7 @@
 
 @if (Model.Repos.Count() == 0)
 {
-	<div class="card">
+	<div class="card mb-2">
 		<div class="card-body text-center">
 			The List is empty.
 		</div>
@@ -47,10 +47,15 @@
 {
 	<div class="card mb-2 shadow-sm">
 		<div class="card-body">
-			<h5 class="card-title">
-				<img src="@repo.AvatarUrl" alt="Repo avatar" height="25" />
-				<a asp-action="Details" asp-route-id="@repo.Id">@repo.FullName</a>
-			</h5>
+			<div class="d-flex flex-row align-items-start">
+				<h5 class="card-title">
+					<img src="@repo.AvatarUrl" alt="Repo avatar" height="25" />
+					<a asp-action="Details" asp-route-id="@repo.Id">@repo.FullName</a>
+				</h5>
+				<span class="badge badge-light ml-auto border py-1 text-muted">
+					@repo.Issues.Count() issues
+				</span>
+			</div>
 			<h6 class="card-subtitle mb-1 text-muted">copied by @repo.Owner.UserName on @repo.CopiedAt.ToString("d")</h6>
 			<p class="card-text">@repo.Description</p>
 		</div>

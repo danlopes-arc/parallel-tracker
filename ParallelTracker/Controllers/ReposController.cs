@@ -39,22 +39,27 @@ namespace ParallelTracker.Controllers
         {
             IEnumerable<Repo> repos = await _context.Repos
                 .Include(r => r.Owner)
+                .Include(r => r.Issues)
                 .ToListAsync();
 
-            filter.SortMode ??= RepoSortModes.Newest;
+            filter.SortMode ??= RepoSortModes.MostIssues;
             switch (filter.SortMode)
             {
                 case RepoSortModes.Oldest:
                     repos = repos.OrderBy(r => r.CopiedAt);
                     break;
                 case RepoSortModes.Newest:
-                default:
                     repos = repos.OrderByDescending(r => r.CopiedAt);
-                    filter.SortMode = RepoSortModes.Newest;
+                    break;
+                case RepoSortModes.MostIssues:
+                default:
+                    repos = repos.OrderByDescending(r => r.Issues.Count());
+                    filter.SortMode = RepoSortModes.MostIssues;
                     break;
             }
             var sortModeSelectList = new SelectList(new[]
             {
+                new { Code = RepoSortModes.MostIssues, Text = "Most Issues"},
                 new { Code = RepoSortModes.Newest, Text = "Newest"},
                 new { Code = RepoSortModes.Oldest, Text = "Oldest"}
             }, "Code", "Text", filter.SortMode);
@@ -325,6 +330,7 @@ namespace ParallelTracker.Controllers
     {
         public const string Newest = nameof(Newest);
         public const string Oldest = nameof(Oldest);
+        public const string MostIssues = nameof(MostIssues);
     }
 
     public class RepoFilter
