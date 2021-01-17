@@ -13,7 +13,7 @@
 			</button>
 			<div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
 				<a class="dropdown-item" asp-area="Identity" asp-page="/Account/Manage/Index">Manage</a>
-				<form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+				<form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Repos", new { area = "" })">
 					<button type="submit" class="dropdown-item">Logout</button>
 				</form>
 			</div>
