@@ -64,7 +64,7 @@
 					}
 					<a class="ml-1 text-break" asp-controller="Issues" asp-action="Details" asp-route-id="@issue.Id">@issue.Title</a>
 				</h5>
-				<span class="badge badge-light ml-auto border py-1">&#128172; @issue.Comments.Count()</span>
+				<span class="badge badge-light ml-auto border py-1"><i class="far fa-comment-alt mr-2 text-muted"></i>@issue.Comments.Count()</span>
 			</div>
 			<small class="card-subtitle mb-1 text-muted">
 				#@issue.Id
