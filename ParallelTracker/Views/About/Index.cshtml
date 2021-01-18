@@ -1,0 +1,72 @@
+﻿@{
+	Layout = "~/Views/Shared/_Layout.cshtml";
+	ViewBag.Title = "About";
+}
+
+<h2>What is Parallel Tracker?</h2>
+<p>
+	Parallel Tracker is a fake issue tracker.
+	It lets you copy any GitHub repository and start tracking fake issues created by you or other users.
+</p>
+
+<h4>How does it work?</h4>
+<ul>
+	<li>
+		On an repository page users can see and open issues related to that repository.
+	</li>
+	<li>
+		Once an issue is opened, users and the repository owner can leave comments and have conversations about that issue.
+	</li>
+	<li>
+		The repository owner can then work on the issue and close it once it is resolved.
+	</li>
+</ul>
+
+<h4>
+	What can users do?
+</h4>
+<ul>
+	<li>
+		Only repostory owners can change its issues status (⚠open/✔closed)
+	</li>
+	<li>
+		Only issue authors can edit their issues (title and description)
+	</li>
+	<li>
+		Only comment authors can edit their comments
+	</li>
+</ul>
+
+<h4>Who is this guy?</h4>
+<p>
+	Hi! This is Daniel Lopes Arcanjo, I'm a second year Computer Programmer/Analyst student at Conestoga College, Ontario.
+</p>
+<p>
+	I built this website to practise what I learned at school and also to learn some new stuff. Below is some of the technologies/frameworks/tools I used here:
+</p>
+
+@{
+	var techs = new[] {
+		"C#",
+		"HTML",
+		"JavaScript",
+		".NET",
+		"ASP.NET",
+		"MVC",
+		"Razor Pages",
+		"PostgreSQL",
+		"EF Core",
+		"Git",
+		"Docker",
+		"GitHub Api",
+		"GitHub OAuth",
+	};
+}
+<div>
+	@foreach (var tech in techs)
+	{
+		<div class="badge badge-primary">
+			@tech
+		</div>
+	}
+</div>
