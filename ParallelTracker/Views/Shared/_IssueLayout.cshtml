@@ -17,11 +17,11 @@
 		<span class="badge badge-light border badge-pill text-muted">
 			@if (issue.IsClosed)
 			{
-				<text>&#10004; closed</text>
+				<i class="fas fa-check"></i> <text>closed</text>
 			}
 			else
 			{
-				<text>&#9888; open</text>
+				<i class="fas fa-exclamation-circle"></i> <text>open</text>
 			}
 		</span>
 		<span class="ml-1">@issue.Title</span>
