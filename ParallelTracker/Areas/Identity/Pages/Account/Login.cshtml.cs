@@ -85,7 +85,7 @@ namespace ParallelTracker.Areas.Identity.Pages.Account
                 user ??= await _userManager.FindByNameAsync(Input.UsernameOrEmail);
                 if (user == null)
                 {
-                    ModelState.AddModelError(nameof(Input.UsernameOrEmail), "Invalid username or email.");
+                    ModelState.AddModelError($"{nameof(Input)}.{nameof(Input.UsernameOrEmail)}", "Invalid username or email.");
                     return Page();
                 }
 
