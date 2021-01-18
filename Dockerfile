@@ -20,8 +20,6 @@ ENV Google__ClientId=$Google__ClientId
 ENV Google__ClientSecret=$Google__ClientSecret
 ENV GitHub__ClientId=$GitHub__ClientId
 ENV GitHub__ClientSecret=$GitHub__ClientSecret
-ENV GitHubApi__ClientId=$GitHubApi__ClientId
-ENV GitHubApi__ClientSecret=$GitHubApi__ClientSecret
 ENV ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
 
 # Run the app on container startup

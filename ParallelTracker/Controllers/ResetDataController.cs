@@ -181,7 +181,7 @@ namespace ParallelTracker.Controllers
                 new MediaTypeWithQualityHeaderValue("application/vnd.github.v3+json"));
             client.DefaultRequestHeaders.UserAgent.Add(
                 new ProductInfoHeaderValue("PrarallelTracker", "1.0"));
-            var configSection = _configuration.GetSection("GitHubApi");
+            var configSection = _configuration.GetSection("GitHub");
             var byteArray = Encoding.ASCII.GetBytes($"{configSection["ClientId"]}:{configSection["ClientSecret"]}");
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
             return client;
