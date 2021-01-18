@@ -32,11 +32,14 @@
 
 	</div>
 	<div class="d-flex flex-row justify-content-between">
-		<div class="btn-group mb-2">
-			<label class="btn btn-outline-primary">
-				<input class="mr-1" asp-for="Filter.YourIssues" autocomplete="off"> Your Issues
-			</label>
-		</div>
+		@if (User.Identity.IsAuthenticated)
+		{
+			<div class="btn-group mb-2">
+				<label class="btn btn-outline-primary">
+					<input class="mr-1" asp-for="Filter.YourIssues" autocomplete="off"> Your Issues
+				</label>
+			</div>
+		}
 		<div class="btn-group ml-2 mb-3 mb-sm-2">
 			<a asp-action="Details" class=" btn btn-secondary ">Clear</a>
 			<button type="submit" class=" btn btn-primary">Filter</button>
