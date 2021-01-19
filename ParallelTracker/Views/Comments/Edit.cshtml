@@ -17,6 +17,14 @@
 				<label asp-for="Text" class="sr-only">Comment</label>
 				<textarea asp-for="Text" class="form-control" rows="10"></textarea>
 				<span asp-validation-for="Text" class="text-danger"></span>
+
+				<small class="text-muted">
+					<i class="fab fa-markdown"></i>
+					You can use Markdown to format your text.
+					<a href="https://guides.github.com/features/mastering-markdown/" target="_blank">
+						Learn more
+					</a>
+				</small>
 			</div>
 			<div class="form-group">
 				<input type="submit" value="Save" class="btn btn-primary" />

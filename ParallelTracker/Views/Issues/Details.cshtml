@@ -18,11 +18,12 @@
 		}
 		else
 		{
-			<p class="card-text">
-				@foreach (var line in issue.Text.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None))
-				{
+			<p class="card-text markdown" id="issue-text">
+				@issue.Text
+				@*@foreach (var line in issue.Text.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None))
+					{
 					<text>@line</text><br />
-				}
+					}*@
 			</p>
 		}
 	</div>
@@ -52,11 +53,12 @@
 			}
 			else
 			{
-				<p class="card-text">
-					@foreach (var line in comment.Text.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None))
-					{
-						<text>@line</text><br />
-					}
+				<p class="card-text comment-text markdown">
+					@comment.Text
+					@*@foreach (var line in comment.Text.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None))
+						{
+							<text>@line</text><br />
+						}*@
 				</p>
 			}
 		</div>
@@ -72,3 +74,15 @@
 <div class="d-flex justify-content-center">
 	<a class="btn btn-primary align-self-center" asp-controller="Comments" asp-action="Create" asp-route-issueId="@Model.Id">Leave a comment</a>
 </div>
+
+@section Scripts {
+	<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+	<script>
+		const issueTextElm = document.getElementById('issue-text')
+		issueTextElm.innerHTML = marked(issueTextElm.innerHTML.trim())
+
+		Array.from(document.getElementsByClassName("comment-text")).forEach(elm => {
+			elm.innerHTML = marked(elm.innerHTML.trim())
+		})
+	</script>
+}

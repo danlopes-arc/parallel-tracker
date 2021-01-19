@@ -81,3 +81,27 @@ body {
   white-space: nowrap;
   /*line-height: 60px;*/ /* Vertically center the text there */
 }
+
+
+.markdown img {
+    max-width: 100%;
+}
+
+.markdown h1 {
+    font-size: 1.6em
+}
+.markdown h2 {
+    font-size: 1.5em
+}
+.markdown h3 {
+    font-size: 1.4em
+}
+.markdown h4 {
+    font-size: 1.3em
+}
+.markdown h5 {
+    font-size: 1.2em
+}
+.markdown h6 {
+    font-size: 1.1em
+}
